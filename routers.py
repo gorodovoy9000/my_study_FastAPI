@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Body, HTTPException
+from typing import Annotated
 
+from fastapi import APIRouter, HTTPException, Query
 
 from schemas import HotelScheme, HotelWriteScheme, HotelPatchScheme
 
@@ -8,8 +9,14 @@ router = APIRouter(prefix="/hotels", tags=["hotels"])
 ################# fake db
 # fake db
 hotels_db = [
-    {"id": 1, "title": "Sochi", "name": "sochi"},
-    {"id": 2, "title": "Dubai", "name": "dubai"},
+    {"id": 1, "title": "Сочи", "name": "sochi"},
+    {"id": 2, "title": "Дубай", "name": "dubai"},
+    {"id": 3, "title": "Москва", "name": "moscow"},
+    {"id": 4, "title": "Санкт-Петербург", "name": "spb"},
+    {"id": 5, "title": "Тула", "name": "tula"},
+    {"id": 6, "title": "Нью-Йорк", "name": "ny"},
+    {"id": 7, "title": "Берлин", "name": "berlin"},
+    {"id": 8, "title": "Владимир", "name": "vladimir"},
 ]
 # increment imitation
 max_id = len(hotels_db)
@@ -17,8 +24,24 @@ max_id = len(hotels_db)
 
 
 @router.get("")
-async def get_hotels() -> list[HotelScheme]:
-    return [HotelScheme.model_validate(ho, from_attributes=True) for ho in hotels_db]
+async def get_hotels(
+        page: Annotated[
+            int, Query(
+                title="Page",
+                description="Pagination page number",
+            )
+        ] = 1,
+        per_page: Annotated[
+            int, Query(
+                title="Per Page",
+                description="Pagination items per page",
+            )
+        ] = 3,
+) -> list[HotelScheme]:
+    total = len(hotels_db)
+    start = (page - 1) * per_page
+    end = page * per_page
+    return [HotelScheme.model_validate(ho, from_attributes=True) for ho in hotels_db[start:end]]
 
 
 @router.delete("/{hotel_id}", status_code=204)
