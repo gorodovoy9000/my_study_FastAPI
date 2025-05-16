@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Query
 
+from dependencies import PaginationDep
 from schemas import HotelScheme, HotelWriteScheme, HotelPatchScheme
 
 router = APIRouter(prefix="/hotels", tags=["hotels"])
@@ -25,39 +26,15 @@ max_id = len(hotels_db)
 
 @router.get("")
 async def get_hotels(
-        title: Annotated[
-            str | None,
-            Query(
-                title="Title",
-                description="Filter by exact hotel title",
-                max_length=30,
-                min_length=3,
-            )
-        ] = None,
-        page: Annotated[
-            int | None,
-            Query(
-                title="Page",
-                description="Pagination page number",
-                gt=0,
-            )
-        ] = 1,
-        per_page: Annotated[
-            int | None,
-            Query(
-                title="Per Page",
-                description="Pagination items per page",
-                gt=0,
-                lt=100,
-            )
-        ] = 3,
+        pagination: PaginationDep,
+        title: Annotated[str | None, Query(description="Filter by exact hotel title")] = None,
 ) -> list[HotelScheme]:
     # filter
     if title:
         return [HotelScheme.model_validate(ho, from_attributes=True) for ho in hotels_db if ho['title'] == title]
     # pagination
-    start = (page - 1) * per_page
-    end = page * per_page
+    start = (pagination.page - 1) * pagination.per_page
+    end = pagination.page * pagination.per_page
     return [HotelScheme.model_validate(ho, from_attributes=True) for ho in hotels_db[start:end]]
 
 
