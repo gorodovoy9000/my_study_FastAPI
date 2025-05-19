@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from routers import router as hotels_router
+from src.api.routers import router as hotels_router
 
 app = FastAPI()
 
