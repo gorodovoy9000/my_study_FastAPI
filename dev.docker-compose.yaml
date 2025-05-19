@@ -1,0 +1,29 @@
+services:
+    db:
+        image: postgres:17
+        env_file: ".env"
+        ports:
+            - "${DB_PORT}:${DB_PORT}"
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+
+    backend:
+        build:
+            context: ./
+            dockerfile: ./dev.Dockerfile
+        env_file: ".env"
+        environment:
+            - PYTHONUNBUFFERED=1
+        depends_on:
+            - db
+        ports:
+            - "8000:8000"
+        volumes:
+            - ./alembic.ini:/opt/fastapi_app/alembic.ini:ro
+            - ./src:/opt/fastapi_app/src:ro
+            - ./src/migrations/versions:/opt/fastapi_app/src/migrations/versions
+        command: >
+            bash -c "fastapi dev --host 0.0.0.0 --port 8000 src/main.py"
+
+volumes:
+    pgdata:
