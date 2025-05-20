@@ -1,106 +1,106 @@
 from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Query
+from sqlalchemy import insert, select, delete
 
 from src.api.dependencies import PaginationDep
+from src.database import async_session_maker, engine
+from src.models import HotelsOrm
 from src.schemas import HotelScheme, HotelWriteScheme, HotelPatchScheme
 
 router = APIRouter(prefix="/hotels", tags=["hotels"])
-
-################# fake db
-# fake db
-hotels_db = [
-    {"id": 1, "title": "Сочи", "name": "sochi"},
-    {"id": 2, "title": "Дубай", "name": "dubai"},
-    {"id": 3, "title": "Москва", "name": "moscow"},
-    {"id": 4, "title": "Санкт-Петербург", "name": "spb"},
-    {"id": 5, "title": "Тула", "name": "tula"},
-    {"id": 6, "title": "Нью-Йорк", "name": "ny"},
-    {"id": 7, "title": "Берлин", "name": "berlin"},
-    {"id": 8, "title": "Владимир", "name": "vladimir"},
-]
-# increment imitation
-max_id = len(hotels_db)
-#############################
 
 
 @router.get("")
 async def get_hotels(
         pagination: PaginationDep,
-        title: Annotated[str | None, Query(description="Filter by exact hotel title")] = None,
+        title: Annotated[str | None, Query(description="Filter by substring hotel title")] = None,
+        location: Annotated[str | None, Query(description="Filter by substring hotel location")] = None,
 ) -> list[HotelScheme]:
-    # filter
-    if title:
-        return [HotelScheme.model_validate(ho, from_attributes=True) for ho in hotels_db if ho['title'] == title]
-    # pagination
-    start = (pagination.page - 1) * pagination.per_page
-    end = pagination.page * pagination.per_page
-    return [HotelScheme.model_validate(ho, from_attributes=True) for ho in hotels_db[start:end]]
+    async with async_session_maker() as session:
+        query = select(HotelsOrm)
+        # optional substring filter by title, location
+        if title:
+            query = query.where(HotelsOrm.title.ilike(f"%{title}%"))
+        if location:
+            query = query.where(HotelsOrm.location.ilike(f"%{location}%"))
+        # pagination
+        query = (
+            query
+            .limit(pagination.per_page)
+            .offset(pagination.per_page * (pagination.page - 1))
+        )
+        result = await session.execute(query)
+        items_orm = result.scalars().all()
+    return [HotelScheme.model_validate(mo, from_attributes=True) for mo in items_orm]
 
 
 @router.delete("/{hotel_id}", status_code=204)
 async def delete_hotel(hotel_id: int):
-    # get hotel
-    list_index_hotel = None
-    for i, hotel in enumerate (hotels_db):
-        if hotel["id"] == hotel_id:
-            list_index_hotel = i
-    # not found by id
-    if list_index_hotel is None:
-        raise HTTPException(status_code=404, detail="Hotel not found")
-    # delete from list
-    hotels_db.pop(list_index_hotel)
+    async with async_session_maker() as session:
+        stmt = (
+            delete(HotelsOrm)
+            .where(HotelsOrm.id == hotel_id)
+            .returning(HotelsOrm.id)
+        )
+        result = await session.execute(stmt)
+        deleted_item_id = result.scalars().first()
+        # debug deleted item id print
+        print(deleted_item_id)
+        await session.commit()
     return {"status": "Ok"}
 
 
 @router.post("", status_code=201)
-async def create_hotel(hotel_scheme: HotelWriteScheme) -> HotelScheme:
-    # check if hotel already created
-    for hotel in hotels_db:
-        if hotel["name"] == hotel_scheme.name:
-            raise HTTPException(status_code=422, detail="Hotel already exists")
-    # create hotel
-    global max_id
-    max_id += 1
-    created_hotel_data = {"id": max_id, "name": hotel_scheme.name, "title": hotel_scheme.title}
-    hotels_db.append(created_hotel_data)
-    return HotelScheme.model_validate(created_hotel_data, from_attributes=True)
+async def create_hotel(hotel_scheme: HotelWriteScheme):
+    async with async_session_maker() as session:
+        stms = (
+            insert(HotelsOrm)
+            .values(**hotel_scheme.model_dump())
+            .returning(HotelsOrm.id)
+        )
+        # debug stmt print
+        print(stms.compile(engine, compile_kwargs={"literal_binds": True}))
+        result = await session.execute(stms)
+        created_item_id = result.scalars().first()
+        await session.commit()
+    return {"id": created_item_id}
 
 
-@router.put("/{hotel_id}", status_code=204)
-async def update_hotel(
-        hotel_id: int,
-        hotel_scheme: HotelPatchScheme,
-):
-    # get hotel
-    list_index_hotel = None
-    for i, hotel in enumerate(hotels_db):
-        if hotel["id"] == hotel_id:
-            list_index_hotel = i
-    # not found by id
-    if list_index_hotel is None:
-        raise HTTPException(status_code=404, detail="Hotel not found")
-    # replace hotel data
-    hotels_db[list_index_hotel] = {"id": hotel_id, "name": hotel_scheme.name, "title": hotel_scheme.title}
-    return {"status": "Ok"}
-
-
-@router.patch("/{hotel_id}", status_code=204)
-async def update_hotel(
-        hotel_id: int,
-        hotel_scheme: HotelPatchScheme,
-):
-    # get hotel
-    list_index_hotel = None
-    for i, hotel in enumerate(hotels_db):
-        if hotel["id"] == hotel_id:
-            list_index_hotel = i
-    # not found by id
-    if list_index_hotel is None:
-        raise HTTPException(status_code=404, detail="Hotel not found")
-    # partial update
-    if hotel_scheme.name:
-        hotels_db[list_index_hotel]["name"] = hotel_scheme.name
-    if hotel_scheme.title:
-        hotels_db[list_index_hotel]["title"] = hotel_scheme.title
-    return {"status": "Ok"}
+# @router.put("/{hotel_id}", status_code=204)
+# async def update_hotel(
+#         hotel_id: int,
+#         hotel_scheme: HotelPatchScheme,
+# ):
+#     # get hotel
+#     list_index_hotel = None
+#     for i, hotel in enumerate(hotels_db):
+#         if hotel["id"] == hotel_id:
+#             list_index_hotel = i
+#     # not found by id
+#     if list_index_hotel is None:
+#         raise HTTPException(status_code=404, detail="Hotel not found")
+#     # replace hotel data
+#     hotels_db[list_index_hotel] = {"id": hotel_id, "name": hotel_scheme.name, "title": hotel_scheme.title}
+#     return {"status": "Ok"}
+#
+#
+# @router.patch("/{hotel_id}", status_code=204)
+# async def update_hotel(
+#         hotel_id: int,
+#         hotel_scheme: HotelPatchScheme,
+# ):
+#     # get hotel
+#     list_index_hotel = None
+#     for i, hotel in enumerate(hotels_db):
+#         if hotel["id"] == hotel_id:
+#             list_index_hotel = i
+#     # not found by id
+#     if list_index_hotel is None:
+#         raise HTTPException(status_code=404, detail="Hotel not found")
+#     # partial update
+#     if hotel_scheme.name:
+#         hotels_db[list_index_hotel]["name"] = hotel_scheme.name
+#     if hotel_scheme.title:
+#         hotels_db[list_index_hotel]["title"] = hotel_scheme.title
+#     return {"status": "Ok"}

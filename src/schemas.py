@@ -1,13 +1,13 @@
 from pydantic import BaseModel
 
 class HotelWriteScheme(BaseModel):
-    name: str
     title: str
+    location: str
 
 
 class HotelPatchScheme(BaseModel):
-    name: str | None = None
     title: str | None = None
+    location: str | None = None
 
 
 class HotelScheme(HotelWriteScheme):
