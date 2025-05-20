@@ -21,9 +21,9 @@ async def get_hotels(
         query = select(HotelsOrm)
         # optional substring filter by title, location
         if title:
-            query = query.where(HotelsOrm.title.ilike(f"%{title}%"))
+            query = query.where(HotelsOrm.title.icontains(title.strip().lower()))
         if location:
-            query = query.where(HotelsOrm.location.ilike(f"%{location}%"))
+            query = query.where(HotelsOrm.location.icontains(location.strip().lower()))
         # pagination
         query = (
             query
