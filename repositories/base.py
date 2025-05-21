@@ -36,12 +36,12 @@ class BaseRepository:
         result = await self.session.execute(stmt)
         return result.scalars().one()
 
-    async def edit(self, scheme: BaseModel, **filter_by) -> None:
+    async def edit(self, scheme: BaseModel, partial_update = False, **filter_by) -> None:
         # only one object allowed
         await self.get_one(**filter_by)
         stmt = (
             update(self.model)
-            .values(**scheme.model_dump())
+            .values(**scheme.model_dump(exclude_unset=partial_update))
             .filter_by(**filter_by)
         )
         await self.session.execute(stmt)

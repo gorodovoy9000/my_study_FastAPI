@@ -62,22 +62,14 @@ async def update_hotel(hotel_id: int, scheme_update: HotelWriteScheme):
     return {"status": "Ok"}
 
 
-# @router.patch("/{hotel_id}", status_code=204)
-# async def update_hotel(
-#         hotel_id: int,
-#         hotel_scheme: HotelPatchScheme,
-# ):
-#     # get hotel
-#     list_index_hotel = None
-#     for i, hotel in enumerate(hotels_db):
-#         if hotel["id"] == hotel_id:
-#             list_index_hotel = i
-#     # not found by id
-#     if list_index_hotel is None:
-#         raise HTTPException(status_code=404, detail="Hotel not found")
-#     # partial update
-#     if hotel_scheme.name:
-#         hotels_db[list_index_hotel]["name"] = hotel_scheme.name
-#     if hotel_scheme.title:
-#         hotels_db[list_index_hotel]["title"] = hotel_scheme.title
-#     return {"status": "Ok"}
+@router.patch("/{hotel_id}", status_code=204)
+async def partial_update_hotel(hotel_id: int, scheme_patch: HotelPatchScheme):
+    async with async_session_maker() as session:
+        try:
+            await HotelsRepository(session).edit(scheme_patch, partial_update=True, id=hotel_id)
+            await session.commit()
+        except MultipleResultsFound:
+            raise HTTPException(status_code=422, detail="Multiple hotels found, only one allowed")
+        except NoResultFound:
+            raise HTTPException(status_code=404, detail="Hotel not found")
+    return {"status": "Ok"}
