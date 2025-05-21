@@ -27,6 +27,15 @@ async def get_hotels(
     return [HotelScheme.model_validate(mo, from_attributes=True) for mo in items_orm]
 
 
+@router.post("", status_code=201)
+async def create_hotel(scheme_create: HotelWriteScheme):
+    async with async_session_maker() as session:
+        item_orm = await HotelsRepository(session).add(scheme_create)
+        # transaction commit MUST stay here!
+        await session.commit()
+    return {"status": "Ok", "data": item_orm}
+
+
 @router.delete("/{hotel_id}", status_code=204)
 async def delete_hotel(hotel_id: int):
     async with async_session_maker() as session:
@@ -38,15 +47,6 @@ async def delete_hotel(hotel_id: int):
         except NoResultFound:
             raise HTTPException(status_code=404, detail="Hotel not found")
     return {"status": "Ok"}
-
-
-@router.post("", status_code=201)
-async def create_hotel(scheme_create: HotelWriteScheme):
-    async with async_session_maker() as session:
-        item_orm = await HotelsRepository(session).add(scheme_create)
-        # transaction commit MUST stay here!
-        await session.commit()
-    return {"status": "Ok", "data": item_orm}
 
 
 @router.put("/{hotel_id}", status_code=204)
