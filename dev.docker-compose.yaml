@@ -23,6 +23,7 @@ services:
             - "8000:8000"
         volumes:
             - ./alembic.ini:/opt/fastapi_app/alembic.ini:ro
+            - ./repositories:/opt/fastapi_app/repositories:ro
             - ./src:/opt/fastapi_app/src:ro
             - ./src/migrations/versions:/opt/fastapi_app/src/migrations/versions
         command: >

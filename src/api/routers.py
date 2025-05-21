@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, HTTPException, Query
 from sqlalchemy import insert, select, delete
 
+from repositories.hotels import HotelsRepository
 from src.api.dependencies import PaginationDep
 from src.database import async_session_maker, engine
 from src.models import HotelsOrm
@@ -18,20 +19,12 @@ async def get_hotels(
         location: Annotated[str | None, Query(description="Filter by substring hotel location")] = None,
 ) -> list[HotelScheme]:
     async with async_session_maker() as session:
-        query = select(HotelsOrm)
-        # optional substring filter by title, location
-        if title:
-            query = query.where(HotelsOrm.title.icontains(title.strip().lower()))
-        if location:
-            query = query.where(HotelsOrm.location.icontains(location.strip().lower()))
-        # pagination
-        query = (
-            query
-            .limit(pagination.per_page)
-            .offset(pagination.per_page * (pagination.page - 1))
+        items_orm = await HotelsRepository(session).get_all(
+            location=location,
+            title=title,
+            limit=pagination.per_page,
+            offset=pagination.per_page * (pagination.page - 1),
         )
-        result = await session.execute(query)
-        items_orm = result.scalars().all()
     return [HotelScheme.model_validate(mo, from_attributes=True) for mo in items_orm]
 
 
@@ -52,19 +45,12 @@ async def delete_hotel(hotel_id: int):
 
 
 @router.post("", status_code=201)
-async def create_hotel(hotel_scheme: HotelWriteScheme):
+async def create_hotel(scheme_create: HotelWriteScheme):
     async with async_session_maker() as session:
-        stms = (
-            insert(HotelsOrm)
-            .values(**hotel_scheme.model_dump())
-            .returning(HotelsOrm.id)
-        )
-        # debug stmt print
-        print(stms.compile(engine, compile_kwargs={"literal_binds": True}))
-        result = await session.execute(stms)
-        created_item_id = result.scalars().first()
+        item_orm = await HotelsRepository(session).add(**scheme_create.model_dump())
+        # transaction commit MUST stay here!
         await session.commit()
-    return {"id": created_item_id}
+    return {"status": "Ok", "data": item_orm}
 
 
 # @router.put("/{hotel_id}", status_code=204)
