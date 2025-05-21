@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from sqlalchemy import select, insert
+from sqlalchemy import delete, insert, select, update
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -14,6 +14,11 @@ class BaseRepository:
         query = select(self.model)
         result = await self.session.execute(query)
         return result.scalars().all()
+
+    async def get_one(self, **filter_by):
+        query = select(self.model).filter_by(**filter_by)
+        result = await self.session.execute(query)
+        return result.scalars().one()
 
     async def get_one_or_none(self, **filter_by):
         query = select(self.model).filter_by(**filter_by)
@@ -30,3 +35,22 @@ class BaseRepository:
         # print(stms.compile(engine, compile_kwargs={"literal_binds": True}))
         result = await self.session.execute(stmt)
         return result.scalars().one()
+
+    async def edit(self, scheme: BaseModel, **filter_by) -> None:
+        # only one object allowed
+        await self.get_one(**filter_by)
+        stmt = (
+            update(self.model)
+            .values(**scheme.model_dump())
+            .filter_by(**filter_by)
+        )
+        await self.session.execute(stmt)
+
+    async def delete(self, **filter_by) -> None:
+        # only one object allowed
+        await self.get_one(**filter_by)
+        stmt = (
+            delete(self.model)
+            .filter_by(**filter_by)
+        )
+        await self.session.execute(stmt)

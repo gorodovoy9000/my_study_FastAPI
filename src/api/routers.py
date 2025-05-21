@@ -1,12 +1,11 @@
 from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Query
-from sqlalchemy import insert, select, delete
+from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 
 from repositories.hotels import HotelsRepository
 from src.api.dependencies import PaginationDep
-from src.database import async_session_maker, engine
-from src.models import HotelsOrm
+from src.database import async_session_maker
 from src.schemas import HotelScheme, HotelWriteScheme, HotelPatchScheme
 
 router = APIRouter(prefix="/hotels", tags=["hotels"])
@@ -31,16 +30,13 @@ async def get_hotels(
 @router.delete("/{hotel_id}", status_code=204)
 async def delete_hotel(hotel_id: int):
     async with async_session_maker() as session:
-        stmt = (
-            delete(HotelsOrm)
-            .where(HotelsOrm.id == hotel_id)
-            .returning(HotelsOrm.id)
-        )
-        result = await session.execute(stmt)
-        deleted_item_id = result.scalars().first()
-        # debug deleted item id print
-        print(deleted_item_id)
-        await session.commit()
+        try:
+            await HotelsRepository(session).delete(id=hotel_id)
+            await session.commit()
+        except MultipleResultsFound:
+            raise HTTPException(status_code=422, detail="Multiple hotels found, only one allowed")
+        except NoResultFound:
+            raise HTTPException(status_code=404, detail="Hotel not found")
     return {"status": "Ok"}
 
 
@@ -53,24 +49,19 @@ async def create_hotel(scheme_create: HotelWriteScheme):
     return {"status": "Ok", "data": item_orm}
 
 
-# @router.put("/{hotel_id}", status_code=204)
-# async def update_hotel(
-#         hotel_id: int,
-#         hotel_scheme: HotelPatchScheme,
-# ):
-#     # get hotel
-#     list_index_hotel = None
-#     for i, hotel in enumerate(hotels_db):
-#         if hotel["id"] == hotel_id:
-#             list_index_hotel = i
-#     # not found by id
-#     if list_index_hotel is None:
-#         raise HTTPException(status_code=404, detail="Hotel not found")
-#     # replace hotel data
-#     hotels_db[list_index_hotel] = {"id": hotel_id, "name": hotel_scheme.name, "title": hotel_scheme.title}
-#     return {"status": "Ok"}
-#
-#
+@router.put("/{hotel_id}", status_code=204)
+async def update_hotel(hotel_id: int, scheme_update: HotelWriteScheme):
+    async with async_session_maker() as session:
+        try:
+            await HotelsRepository(session).edit(scheme_update, id=hotel_id)
+            await session.commit()
+        except MultipleResultsFound:
+            raise HTTPException(status_code=422, detail="Multiple hotels found, only one allowed")
+        except NoResultFound:
+            raise HTTPException(status_code=404, detail="Hotel not found")
+    return {"status": "Ok"}
+
+
 # @router.patch("/{hotel_id}", status_code=204)
 # async def update_hotel(
 #         hotel_id: int,
