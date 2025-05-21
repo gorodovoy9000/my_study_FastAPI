@@ -1,3 +1,4 @@
+from pydantic import BaseModel
 from sqlalchemy import select, insert
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,13 +20,13 @@ class BaseRepository:
         result = await self.session.execute(query)
         return result.scalars().one_or_none()
 
-    async def add(self, **insert_data):
-        stms = (
+    async def add(self, scheme: BaseModel):
+        stmt = (
             insert(self.model)
-            .values(**insert_data)
+            .values(**scheme.model_dump())
             .returning(self.model)
         )
         # debug stmt print
         # print(stms.compile(engine, compile_kwargs={"literal_binds": True}))
-        result = await self.session.execute(stms)
-        return result.scalars().first()
+        result = await self.session.execute(stmt)
+        return result.scalars().one()

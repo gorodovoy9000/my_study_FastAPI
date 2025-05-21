@@ -47,7 +47,7 @@ async def delete_hotel(hotel_id: int):
 @router.post("", status_code=201)
 async def create_hotel(scheme_create: HotelWriteScheme):
     async with async_session_maker() as session:
-        item_orm = await HotelsRepository(session).add(**scheme_create.model_dump())
+        item_orm = await HotelsRepository(session).add(scheme_create)
         # transaction commit MUST stay here!
         await session.commit()
     return {"status": "Ok", "data": item_orm}
