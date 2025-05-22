@@ -11,19 +11,19 @@ class BaseRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def get_all(self, *args, **kwargs) -> list[BaseModel]:
+    async def get_all(self, *args, **kwargs):
         query = select(self.model)
         result = await self.session.execute(query)
         model_objects = result.scalars().all()
         return [self.schema.model_validate(mo, from_attributes=True) for mo in model_objects]
 
-    async def get_one(self, **filter_by) -> BaseModel:
+    async def get_one(self, **filter_by):
         query = select(self.model).filter_by(**filter_by)
         result = await self.session.execute(query)
         model_object = result.scalars().one()
         return self.schema.model_validate(model_object, from_attributes=True)
 
-    async def get_one_or_none(self, **filter_by) -> BaseModel | None:
+    async def get_one_or_none(self, **filter_by):
         query = select(self.model).filter_by(**filter_by)
         result = await self.session.execute(query)
         model_object = result.scalars().one_or_none()
@@ -31,7 +31,7 @@ class BaseRepository:
             return None
         return self.schema.model_validate(model_object, from_attributes=True)
 
-    async def add(self, scheme: BaseModel) -> BaseModel:
+    async def add(self, scheme: BaseModel):
         stmt = (
             insert(self.model)
             .values(**scheme.model_dump())
