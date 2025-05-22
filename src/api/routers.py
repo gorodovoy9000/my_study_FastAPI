@@ -18,34 +18,34 @@ async def get_hotels(
         location: Annotated[str | None, Query(description="Filter by substring hotel location")] = None,
 ) -> list[HotelScheme]:
     async with async_session_maker() as session:
-        items_orm = await HotelsRepository(session).get_all(
+        data = await HotelsRepository(session).get_all(
             location=location,
             title=title,
             limit=pagination.per_page,
             offset=pagination.per_page * (pagination.page - 1),
         )
-    return [HotelScheme.model_validate(mo, from_attributes=True) for mo in items_orm]
+    return data
 
 
 @router.get("/{hotel_id}")
 async def get_hotel(hotel_id: int) -> HotelScheme:
     async with async_session_maker() as session:
         try:
-            item_orm = await HotelsRepository(session).get_one(id=hotel_id)
+            data = await HotelsRepository(session).get_one(id=hotel_id)
         except MultipleResultsFound:
             raise HTTPException(status_code=422, detail="Multiple hotels found, only one allowed")
         except NoResultFound:
             raise HTTPException(status_code=404, detail="Hotel not found")
-    return HotelScheme.model_validate(item_orm, from_attributes=True)
+    return data
 
 
 @router.post("", status_code=201)
 async def create_hotel(scheme_create: HotelWriteScheme):
     async with async_session_maker() as session:
-        item_orm = await HotelsRepository(session).add(scheme_create)
+        data = await HotelsRepository(session).add(scheme_create)
         # transaction commit MUST stay here!
         await session.commit()
-    return {"status": "Ok", "data": item_orm}
+    return {"status": "Ok", "data": data}
 
 
 @router.delete("/{hotel_id}", status_code=204)

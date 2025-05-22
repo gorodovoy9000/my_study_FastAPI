@@ -1,13 +1,15 @@
 from sqlalchemy import select
 
 from src.models import HotelsOrm
+from src.schemas import HotelScheme
 from repositories.base import BaseRepository
 
 
 class HotelsRepository(BaseRepository):
     model = HotelsOrm
+    schema = HotelScheme
 
-    async def get_all(self, location, title, limit, offset):
+    async def get_all(self, location: str, title: str, limit: int, offset: int) -> list[HotelScheme]:
         query = select(HotelsOrm)
         # optional substring filter by title, location
         if title:
@@ -15,10 +17,7 @@ class HotelsRepository(BaseRepository):
         if location:
             query = query.where(HotelsOrm.location.icontains(location.strip().lower()))
         # pagination
-        query = (
-            query
-            .limit(limit)
-            .offset(offset)
-        )
+        query = query.limit(limit).offset(offset)
         result = await self.session.execute(query)
-        return result.scalars().all()
+        model_objects = result.scalars().all()
+        return [HotelScheme.model_validate(mo, from_attributes=True) for mo in model_objects]
