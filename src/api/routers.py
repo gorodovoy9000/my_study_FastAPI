@@ -27,6 +27,18 @@ async def get_hotels(
     return [HotelScheme.model_validate(mo, from_attributes=True) for mo in items_orm]
 
 
+@router.get("/{hotel_id}")
+async def get_hotel(hotel_id: int) -> HotelScheme:
+    async with async_session_maker() as session:
+        try:
+            item_orm = await HotelsRepository(session).get_one(id=hotel_id)
+        except MultipleResultsFound:
+            raise HTTPException(status_code=422, detail="Multiple hotels found, only one allowed")
+        except NoResultFound:
+            raise HTTPException(status_code=404, detail="Hotel not found")
+    return HotelScheme.model_validate(item_orm, from_attributes=True)
+
+
 @router.post("", status_code=201)
 async def create_hotel(scheme_create: HotelWriteScheme):
     async with async_session_maker() as session:
