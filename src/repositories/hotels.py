@@ -1,8 +1,8 @@
 from sqlalchemy import select
 
 from src.models import HotelsOrm
+from src.repositories.base import BaseRepository
 from src.schemas import HotelScheme
-from repositories.base import BaseRepository
 
 
 class HotelsRepository(BaseRepository):

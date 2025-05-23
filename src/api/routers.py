@@ -3,9 +3,9 @@ from typing import Annotated
 from fastapi import APIRouter, HTTPException, Query
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 
-from repositories.hotels import HotelsRepository
 from src.api.dependencies import PaginationDep
 from src.database import async_session_maker
+from src.repositories.hotels import HotelsRepository
 from src.schemas import HotelScheme, HotelWriteScheme, HotelPatchScheme
 
 router = APIRouter(prefix="/hotels", tags=["hotels"])
