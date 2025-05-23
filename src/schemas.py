@@ -1,11 +1,11 @@
 from pydantic import BaseModel, model_validator
 
-class HotelWriteScheme(BaseModel):
+class HotelWriteSchema(BaseModel):
     title: str
     location: str
 
 
-class HotelPatchScheme(BaseModel):
+class HotelPatchSchema(BaseModel):
     title: str | None = None
     location: str | None = None
 
@@ -16,5 +16,5 @@ class HotelPatchScheme(BaseModel):
         return data
 
 
-class HotelScheme(HotelWriteScheme):
+class HotelSchema(HotelWriteSchema):
     id: int

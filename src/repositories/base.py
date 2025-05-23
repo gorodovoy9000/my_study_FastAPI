@@ -31,10 +31,10 @@ class BaseRepository:
             return None
         return self.schema.model_validate(model_object, from_attributes=True)
 
-    async def add(self, scheme: BaseModel):
+    async def add(self, schema: BaseModel):
         stmt = (
             insert(self.model)
-            .values(**scheme.model_dump())
+            .values(**schema.model_dump())
             .returning(self.model)
         )
         # debug stmt print
@@ -43,12 +43,12 @@ class BaseRepository:
         model_object = result.scalars().one()
         return self.schema.model_validate(model_object, from_attributes=True)
 
-    async def edit(self, scheme: BaseModel, partial_update = False, **filter_by) -> None:
+    async def edit(self, schema: BaseModel, partial_update = False, **filter_by) -> None:
         # only one object allowed
         await self.get_one(**filter_by)
         stmt = (
             update(self.model)
-            .values(**scheme.model_dump(exclude_unset=partial_update))
+            .values(**schema.model_dump(exclude_unset=partial_update))
             .filter_by(**filter_by)
         )
         await self.session.execute(stmt)

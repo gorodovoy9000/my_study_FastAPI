@@ -6,7 +6,7 @@ from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from src.api.dependencies import PaginationDep
 from src.database import async_session_maker
 from src.repositories.hotels import HotelsRepository
-from src.schemas import HotelScheme, HotelWriteScheme, HotelPatchScheme
+from src.schemas import HotelSchema, HotelWriteSchema, HotelPatchSchema
 
 router = APIRouter(prefix="/hotels", tags=["hotels"])
 
@@ -16,7 +16,7 @@ async def get_hotels(
         pagination: PaginationDep,
         title: Annotated[str | None, Query(description="Filter by substring hotel title")] = None,
         location: Annotated[str | None, Query(description="Filter by substring hotel location")] = None,
-) -> list[HotelScheme]:
+) -> list[HotelSchema]:
     async with async_session_maker() as session:
         data = await HotelsRepository(session).get_all(
             location=location,
@@ -28,7 +28,7 @@ async def get_hotels(
 
 
 @router.get("/{hotel_id}")
-async def get_hotel(hotel_id: int) -> HotelScheme:
+async def get_hotel(hotel_id: int) -> HotelSchema:
     async with async_session_maker() as session:
         try:
             data = await HotelsRepository(session).get_one(id=hotel_id)
@@ -40,9 +40,9 @@ async def get_hotel(hotel_id: int) -> HotelScheme:
 
 
 @router.post("", status_code=201)
-async def create_hotel(scheme_create: HotelWriteScheme):
+async def create_hotel(schema_create: HotelWriteSchema):
     async with async_session_maker() as session:
-        data = await HotelsRepository(session).add(scheme_create)
+        data = await HotelsRepository(session).add(schema_create)
         # transaction commit MUST stay here!
         await session.commit()
     return {"status": "Ok", "data": data}
@@ -62,10 +62,10 @@ async def delete_hotel(hotel_id: int):
 
 
 @router.put("/{hotel_id}", status_code=204)
-async def update_hotel(hotel_id: int, scheme_update: HotelWriteScheme):
+async def update_hotel(hotel_id: int, schema_update: HotelWriteSchema):
     async with async_session_maker() as session:
         try:
-            await HotelsRepository(session).edit(scheme_update, id=hotel_id)
+            await HotelsRepository(session).edit(schema_update, id=hotel_id)
             await session.commit()
         except MultipleResultsFound:
             raise HTTPException(status_code=422, detail="Multiple hotels found, only one allowed")
@@ -75,10 +75,10 @@ async def update_hotel(hotel_id: int, scheme_update: HotelWriteScheme):
 
 
 @router.patch("/{hotel_id}", status_code=204)
-async def partial_update_hotel(hotel_id: int, scheme_patch: HotelPatchScheme):
+async def partial_update_hotel(hotel_id: int, schema_patch: HotelPatchSchema):
     async with async_session_maker() as session:
         try:
-            await HotelsRepository(session).edit(scheme_patch, partial_update=True, id=hotel_id)
+            await HotelsRepository(session).edit(schema_patch, partial_update=True, id=hotel_id)
             await session.commit()
         except MultipleResultsFound:
             raise HTTPException(status_code=422, detail="Multiple hotels found, only one allowed")
