@@ -105,6 +105,7 @@ class BaseRepository:
             delete(self.model)
             .filter_by(**filter_by)
         )
+        # execute and check about constrain violations
         try:
             await self.session.execute(stmt)
         except IntegrityError as err:
