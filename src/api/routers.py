@@ -1,10 +1,10 @@
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Query, Path
-from sqlalchemy.exc import MultipleResultsFound, NoResultFound
+from fastapi import APIRouter, Query
 
 from src.api.dependencies import IdDep, PaginationDep
 from src.database import async_session_maker
+from src.api.exceptions import only_one_error_handler
 from src.repositories.hotels import HotelsRepository
 from src.schemas import HotelSchema, HotelWriteSchema, HotelPatchSchema
 
@@ -28,14 +28,10 @@ async def get_hotels(
 
 
 @router.get("/{hotel_id}")
+@only_one_error_handler
 async def get_hotel(hotel_id: IdDep) -> HotelSchema:
     async with async_session_maker() as session:
-        try:
-            data = await HotelsRepository(session).get_one(id=hotel_id)
-        except MultipleResultsFound:
-            raise HTTPException(status_code=422, detail="Multiple hotels found, only one allowed")
-        except NoResultFound:
-            raise HTTPException(status_code=404, detail="Hotel not found")
+        data = await HotelsRepository(session).get_one(id=hotel_id)
     return data
 
 
@@ -49,39 +45,27 @@ async def create_hotel(schema_create: HotelWriteSchema):
 
 
 @router.delete("/{hotel_id}", status_code=204)
+@only_one_error_handler
 async def delete_hotel(hotel_id: IdDep):
     async with async_session_maker() as session:
-        try:
-            await HotelsRepository(session).delete(id=hotel_id)
-            await session.commit()
-        except MultipleResultsFound:
-            raise HTTPException(status_code=422, detail="Multiple hotels found, only one allowed")
-        except NoResultFound:
-            raise HTTPException(status_code=404, detail="Hotel not found")
+        await HotelsRepository(session).delete(id=hotel_id)
+        await session.commit()
     return {"status": "Ok"}
 
 
 @router.put("/{hotel_id}", status_code=204)
+@only_one_error_handler
 async def update_hotel(hotel_id: IdDep, schema_update: HotelWriteSchema):
     async with async_session_maker() as session:
-        try:
-            await HotelsRepository(session).edit(schema_update, id=hotel_id)
-            await session.commit()
-        except MultipleResultsFound:
-            raise HTTPException(status_code=422, detail="Multiple hotels found, only one allowed")
-        except NoResultFound:
-            raise HTTPException(status_code=404, detail="Hotel not found")
+        await HotelsRepository(session).edit(schema_update, id=hotel_id)
+        await session.commit()
     return {"status": "Ok"}
 
 
 @router.patch("/{hotel_id}", status_code=204)
+@only_one_error_handler
 async def partial_update_hotel(hotel_id: IdDep, schema_patch: HotelPatchSchema):
     async with async_session_maker() as session:
-        try:
-            await HotelsRepository(session).edit(schema_patch, partial_update=True, id=hotel_id)
-            await session.commit()
-        except MultipleResultsFound:
-            raise HTTPException(status_code=422, detail="Multiple hotels found, only one allowed")
-        except NoResultFound:
-            raise HTTPException(status_code=404, detail="Hotel not found")
+        await HotelsRepository(session).edit(schema_patch, partial_update=True, id=hotel_id)
+        await session.commit()
     return {"status": "Ok"}
