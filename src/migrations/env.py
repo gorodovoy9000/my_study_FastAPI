@@ -8,7 +8,9 @@ from alembic import context
 
 # our DB
 from src.database import Base
-from src.models import HotelsOrm, RoomsOrm, UsersORM
+from src.models.hotels import HotelsOrm
+from src.models.rooms import RoomsOrm
+from src.models.users import  UsersORM
 # our settings
 from src.config import settings
 
