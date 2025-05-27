@@ -1,3 +1,11 @@
+import re
+
+
+def parse_detail(err_text: str) -> str:
+    match = re.search(r"\nDETAIL:(.*)\n", err_text)
+    return match.group(1).strip()
+
+
 class ManyFoundException(Exception):
     pass
 
@@ -15,4 +23,5 @@ class ForeignKeyException(Exception):
 
 
 class UniqueValueException(Exception):
-    pass
+    def __str__(self):
+        return parse_detail(str(self.__context__))

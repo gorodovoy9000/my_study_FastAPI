@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from passlib.context import CryptContext
 
+from src.api.exceptions import constrain_violation_error_handler
 from src.database import async_session_maker
 from src.repositories.users import UsersRepository
 from src.schemas.users import UserPlainPasswordSchema, UserHashedPasswordSchema
@@ -11,6 +12,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 @router.post("/register", status_code=201)
+@constrain_violation_error_handler
 async def register_user(schema_received: UserPlainPasswordSchema):
     # hash password
     hashed_password = pwd_context.hash(schema_received.password)
