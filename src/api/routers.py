@@ -6,7 +6,7 @@ from src.api.dependencies import IdDep, PaginationDep
 from src.database import async_session_maker
 from src.api.exceptions import only_one_error_handler
 from src.repositories.hotels import HotelsRepository
-from src.schemas import HotelSchema, HotelWriteSchema, HotelPatchSchema
+from src.schemas.hotels import HotelSchema, HotelWriteSchema, HotelPatchSchema
 
 router = APIRouter(prefix="/hotels", tags=["hotels"])
 
