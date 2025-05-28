@@ -1,29 +1,53 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException, Response
 from passlib.context import CryptContext
+from starlette import status
 
-from src.api.exceptions import constrain_violation_error_handler
 from src.database import async_session_maker
+from src.exceptions import NotFoundException, UniqueValueException
 from src.repositories.users import UsersRepository
-from src.schemas.users import UserPlainPasswordSchema, UserHashedPasswordSchema
+from src.schemas.users import UserAddSchema, UserLoginSchema, UserRegisterSchema
+from src.service.auth import AuthService
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
+@router.post("/login")
+async def login_user(schema_received: UserLoginSchema, response: Response):
+    async with async_session_maker() as session:
+        # authorize user
+        try:
+            # check user exists
+            user = await UsersRepository(session).get_user_with_hashed_password(email=schema_received.email)
+            # verify password
+            assert AuthService().verify_password(schema_received.password, user.hashed_password)
+        # unauthorized error
+        except (NotFoundException, AssertionError):
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Email or password invalid!")
+        # set access token
+        access_token = AuthService().create_access_token({"user_id": user.id})
+        response.set_cookie("access_token", access_token)
+        return {"access_token": access_token}
+
+
 @router.post("/register", status_code=201)
-@constrain_violation_error_handler
-async def register_user(schema_received: UserPlainPasswordSchema):
-    # hash password
-    hashed_password = pwd_context.hash(schema_received.password)
-    # build schema to write in db
-    schema_create = UserHashedPasswordSchema(
+async def register_user(schema_received: UserRegisterSchema):
+    # build user to add schema
+    schema_create = UserAddSchema(
         username=schema_received.username,
         email=schema_received.email,
-        hashed_password=hashed_password,
+        hashed_password=AuthService().hash_password(schema_received.password),
     )
     # create user and do not return created user data
-    async with async_session_maker() as session:
-        await UsersRepository(session).add(schema_create)
-        await session.commit()
+    try:
+        async with async_session_maker() as session:
+            await UsersRepository(session).add(schema_create)
+            await session.commit()
+    # user already exist error
+    except UniqueValueException:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="User with this email already exists",
+        )
     return {"status": "Ok"}

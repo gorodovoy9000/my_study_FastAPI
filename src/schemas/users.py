@@ -1,29 +1,27 @@
 from pydantic import BaseModel, EmailStr
 
-from src.schemas.base import BasePatchSchema
-
 
 class UserBaseSchema(BaseModel):
     username: str
     email: EmailStr
 
 
-class UserWriteSchema(UserBaseSchema):
-    pass
-
-
-class UserPlainPasswordSchema(UserBaseSchema):
+class UserRegisterSchema(UserBaseSchema):
     password: str
 
 
-class UserHashedPasswordSchema(UserBaseSchema):
+class UserAddSchema(UserBaseSchema):
     hashed_password: str
 
 
-class UserPatchSchema(BasePatchSchema):
-    username: str = None
-    email: EmailStr = None
+class UserLoginSchema(BaseModel):
+    email: EmailStr
+    password: str
 
 
 class UserSchema(UserBaseSchema):
     id: int
+
+
+class UserWithHashedPasswordSchema(UserSchema):
+    hashed_password: str
