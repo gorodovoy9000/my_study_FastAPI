@@ -1,9 +1,10 @@
-from fastapi import APIRouter, HTTPException, Request, Response
+from fastapi import APIRouter, HTTPException, Response
 from passlib.context import CryptContext
 from starlette import status
 
 from src.database import async_session_maker
-from src.exceptions import NotFoundException, UniqueValueException, InvalidPasswordException, InvalidTokenException
+from src.exceptions import NotFoundException, UniqueValueException, InvalidPasswordException
+from src.api.dependencies import UserIdDep
 from src.repositories.users import UsersRepository
 from src.schemas.users import UserAddSchema, UserLoginSchema, UserRegisterSchema
 from src.service.auth import AuthService
@@ -53,27 +54,8 @@ async def register_user(schema_received: UserRegisterSchema):
     return {"status": "Ok"}
 
 
-@router.get("/test_auth")
-async def test_auth(request: Request):
-    # get access token from cookies
-    access_token = request.cookies.get("access_token")
-    # token not found
-    if not access_token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Credentials not provided",
-        )
-    # verify token
-    try:
-        decoded_data = AuthService().decode_access_token(access_token)
-    # token invalid
-    except InvalidTokenException:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Credentials invalid!",
-        )
-    # return authorized user
-    user_id = decoded_data["user_id"]
+@router.get("/me")
+async def current_user(user_id: UserIdDep):
     async with async_session_maker() as session:
         user = await UsersRepository(session).get_one(id=user_id)
     return user
