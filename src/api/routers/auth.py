@@ -32,6 +32,12 @@ async def login_user(schema_received: UserLoginSchema, response: Response):
         return {"access_token": access_token}
 
 
+@router.post("/logout")
+async def logout_user(user_id: UserIdDep, response: Response):
+    response.delete_cookie("access_token")
+    return {"status": "Ok"}
+
+
 @router.post("/register", status_code=201)
 async def register_user(schema_received: UserRegisterSchema):
     # build user to add schema
