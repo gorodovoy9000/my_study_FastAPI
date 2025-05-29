@@ -5,7 +5,7 @@ from jwt.exceptions import InvalidSignatureError, ExpiredSignatureError
 from passlib.context import CryptContext
 
 from src.config import settings
-from src.exceptions import InvalidTokenException
+from src.exceptions import InvalidPasswordException, InvalidTokenException
 
 
 class AuthService:
@@ -18,14 +18,15 @@ class AuthService:
         encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
         return encoded_jwt
 
-    def verify_access_token(self, encoded_jwt: str):
+    def decode_access_token(self, encoded_jwt: str) -> dict:
         try:
-            decoded_jwt = jwt.decode(encoded_jwt, settings.JWT_SECRET_KEY, algorithms=settings.JWT_ALGORITHM)
+            return jwt.decode(encoded_jwt, settings.JWT_SECRET_KEY, algorithms=(settings.JWT_ALGORITHM,))
         except (InvalidSignatureError, ExpiredSignatureError):
             raise InvalidTokenException()
 
     def hash_password(self, password: str) -> str:
         return self.pwd_context.hash(password)
 
-    def verify_password(self, plain_password: str, hashed_password: str) -> bool:
-        return self.pwd_context.verify(plain_password, hashed_password)
+    def verify_password(self, plain_password: str, hashed_password: str):
+        if not self.pwd_context.verify(plain_password, hashed_password):
+            raise InvalidPasswordException()

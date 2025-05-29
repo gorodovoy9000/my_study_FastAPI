@@ -3,7 +3,7 @@ from passlib.context import CryptContext
 from starlette import status
 
 from src.database import async_session_maker
-from src.exceptions import NotFoundException, UniqueValueException, InvalidTokenException
+from src.exceptions import NotFoundException, UniqueValueException, InvalidPasswordException, InvalidTokenException
 from src.repositories.users import UsersRepository
 from src.schemas.users import UserAddSchema, UserLoginSchema, UserRegisterSchema
 from src.service.auth import AuthService
@@ -21,9 +21,9 @@ async def login_user(schema_received: UserLoginSchema, response: Response):
             # check user exists
             user = await UsersRepository(session).get_user_with_hashed_password(email=schema_received.email)
             # verify password
-            assert AuthService().verify_password(schema_received.password, user.hashed_password)
+            AuthService().verify_password(schema_received.password, user.hashed_password)
         # unauthorized error
-        except (NotFoundException, AssertionError):
+        except (NotFoundException, InvalidPasswordException):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Email or password invalid!")
         # set access token
         access_token = AuthService().create_access_token({"user_id": user.id})
@@ -65,12 +65,15 @@ async def test_auth(request: Request):
         )
     # verify token
     try:
-        AuthService().verify_access_token(access_token)
+        decoded_data = AuthService().decode_access_token(access_token)
     # token invalid
     except InvalidTokenException:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Credentials invalid!",
         )
-    # authorized
-    return {"status": "Ok"}
+    # return authorized user
+    user_id = decoded_data["user_id"]
+    async with async_session_maker() as session:
+        user = await UsersRepository(session).get_one(id=user_id)
+    return user
