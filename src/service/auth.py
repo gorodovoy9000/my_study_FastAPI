@@ -1,9 +1,11 @@
 from datetime import datetime, timezone, timedelta
 
-from passlib.context import CryptContext
 import jwt
+from jwt.exceptions import InvalidSignatureError, ExpiredSignatureError
+from passlib.context import CryptContext
 
 from src.config import settings
+from src.exceptions import InvalidTokenException
 
 
 class AuthService:
@@ -15,6 +17,12 @@ class AuthService:
         to_encode |= {"exp": expire}
         encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
         return encoded_jwt
+
+    def verify_access_token(self, encoded_jwt: str):
+        try:
+            decoded_jwt = jwt.decode(encoded_jwt, settings.JWT_SECRET_KEY, algorithms=settings.JWT_ALGORITHM)
+        except (InvalidSignatureError, ExpiredSignatureError):
+            raise InvalidTokenException()
 
     def hash_password(self, password: str) -> str:
         return self.pwd_context.hash(password)

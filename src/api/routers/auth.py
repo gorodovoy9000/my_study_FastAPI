@@ -1,9 +1,9 @@
-from fastapi import APIRouter, HTTPException, Response
+from fastapi import APIRouter, HTTPException, Request, Response
 from passlib.context import CryptContext
 from starlette import status
 
 from src.database import async_session_maker
-from src.exceptions import NotFoundException, UniqueValueException
+from src.exceptions import NotFoundException, UniqueValueException, InvalidTokenException
 from src.repositories.users import UsersRepository
 from src.schemas.users import UserAddSchema, UserLoginSchema, UserRegisterSchema
 from src.service.auth import AuthService
@@ -50,4 +50,27 @@ async def register_user(schema_received: UserRegisterSchema):
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="User with this email already exists",
         )
+    return {"status": "Ok"}
+
+
+@router.get("/test_auth")
+async def test_auth(request: Request):
+    # get access token from cookies
+    access_token = request.cookies.get("access_token")
+    # token not found
+    if not access_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Credentials not provided",
+        )
+    # verify token
+    try:
+        AuthService().verify_access_token(access_token)
+    # token invalid
+    except InvalidTokenException:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Credentials invalid!",
+        )
+    # authorized
     return {"status": "Ok"}
