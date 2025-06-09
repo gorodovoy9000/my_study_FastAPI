@@ -18,13 +18,16 @@ class BaseRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def get_all(self, *args, **kwargs):
+    async def get_many_filtered(self, **filter_by):
         # build query
-        query = select(self.model)
+        query = select(self.model).filter_by(**filter_by)
         # execute
         result = await self.session.execute(query)
         model_objects = result.scalars().all()
         return [self.schema.model_validate(mo, from_attributes=True) for mo in model_objects]
+
+    async def get_all(self):
+        return await self.get_many_filtered()
 
     async def get_one(self, **filter_by):
         # build query
