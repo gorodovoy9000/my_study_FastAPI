@@ -32,16 +32,16 @@ def constrain_violation_error_handler(func):
     async def wrapper(*args, **kwargs):
         try:
             return await func(*args, **kwargs)
-        # except ForeignKeyException as err:
-        #     raise HTTPException(
-        #         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        #         detail=str(err),
-        #     )
-        # except NullValueException as err:
-        #     raise HTTPException(
-        #         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        #         detail=str(err),
-        #     )
+        except ForeignKeyException as err:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=str(err),
+            )
+        except NullValueException as err:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=str(err),
+            )
         except UniqueValueException as err:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,

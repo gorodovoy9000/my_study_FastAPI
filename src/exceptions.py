@@ -15,11 +15,13 @@ class NotFoundException(Exception):
 
 
 class NullValueException(Exception):
-    pass
+    def __str__(self):
+        return parse_detail(str(self.__context__))
 
 
 class ForeignKeyException(Exception):
-    pass
+    def __str__(self):
+        return parse_detail(str(self.__context__))
 
 
 class UniqueValueException(Exception):
