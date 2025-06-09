@@ -6,7 +6,7 @@ from src.database import async_session_maker
 from src.exceptions import NotFoundException, UniqueValueException, InvalidPasswordException
 from src.api.dependencies import UserIdDep
 from src.repositories.users import UsersRepository
-from src.schemas.users import UserAddSchema, UserLoginSchema, UserRegisterSchema
+from src.schemas.users import UsersAddSchema, UsersLoginSchema, UsersRegisterSchema
 from src.service.auth import AuthService
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -15,7 +15,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 @router.post("/login")
-async def login_user(schema_received: UserLoginSchema, response: Response):
+async def login_user(schema_received: UsersLoginSchema, response: Response):
     async with async_session_maker() as session:
         # authorize user
         try:
@@ -39,9 +39,9 @@ async def logout_user(user_id: UserIdDep, response: Response):
 
 
 @router.post("/register", status_code=201)
-async def register_user(schema_received: UserRegisterSchema):
+async def register_user(schema_received: UsersRegisterSchema):
     # build user to add schema
-    schema_create = UserAddSchema(
+    schema_create = UsersAddSchema(
         username=schema_received.username,
         email=schema_received.email,
         hashed_password=AuthService().hash_password(schema_received.password),

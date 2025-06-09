@@ -5,12 +5,12 @@ from sqlalchemy.exc import NoResultFound
 from src.exceptions import NotFoundException
 from src.models.users import UsersORM
 from src.repositories.base import BaseRepository
-from src.schemas.users import UserSchema, UserWithHashedPasswordSchema
+from src.schemas.users import UsersSchema, UserWithHashedPasswordSchema
 
 
 class UsersRepository(BaseRepository):
     model = UsersORM
-    schema = UserSchema
+    schema = UsersSchema
 
     async def get_user_with_hashed_password(self, email: EmailStr):
         # todo refactor - too much duplicate code with the base method get_one

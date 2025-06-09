@@ -3,19 +3,19 @@ from pydantic import BaseModel
 from src.schemas.base import BasePatchSchema
 
 
-class HotelBaseSchema(BaseModel):
+class HotelsBaseSchema(BaseModel):
     title: str
     location: str
 
 
-class HotelWriteSchema(HotelBaseSchema):
+class HotelsWriteSchema(HotelsBaseSchema):
     pass
 
 
-class HotelPatchSchema(BasePatchSchema):
+class HotelsPatchSchema(BasePatchSchema):
     title: str = None
     location: str = None
 
 
-class HotelSchema(HotelBaseSchema):
+class HotelsSchema(HotelsBaseSchema):
     id: int
