@@ -1,4 +1,3 @@
-from encodings.iso8859_4 import decoding_table
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
@@ -8,9 +7,10 @@ from alembic import context
 
 # our DB
 from src.database import Base
+from src.models.bookings import BookingsOrm
 from src.models.hotels import HotelsOrm
 from src.models.rooms import RoomsOrm
-from src.models.users import  UsersORM
+from src.models.users import UsersORM
 # our settings
 from src.config import settings
 
