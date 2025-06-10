@@ -1,4 +1,4 @@
-from src.models.bookings import BookingsOrm
+from src.repositories.bookings import BookingsRepository
 from src.repositories.hotels import HotelsRepository
 from src.repositories.rooms import RoomsRepository
 from src.repositories.users import UsersRepository
@@ -14,7 +14,7 @@ class DBManager:
         self.session = self.session_factory()
 
         # add all repositories
-        self.bookings = BookingsOrm(self.session)
+        self.bookings = BookingsRepository(self.session)
         self.hotels = HotelsRepository(self.session)
         self.rooms = RoomsRepository(self.session)
         self.users = UsersRepository(self.session)
