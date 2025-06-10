@@ -9,15 +9,17 @@ from src.schemas.bookings import BookingsRequestSchema, BookingsSchema, Bookings
 router = APIRouter(prefix="/bookings", tags=["bookings"])
 
 
-# @router.get("")
-# async def get_bookings(db: DBDep):
-#     pass
-#
-#
-# @router.get("/{booking_id}")
-# @only_one_error_handler
-# async def get_booking(db: DBDep, booking_id: int) -> BookingsSchema:
-#     pass
+@router.get("")
+async def get_all_bookings(db: DBDep) -> list[BookingsSchema]:
+    data = await db.bookings.get_all()
+    return data
+
+
+@router.get("/me")
+@only_one_error_handler
+async def get_my_bookings(db: DBDep, user_id: UserIdDep) -> list[BookingsSchema]:
+    data = await db.bookings.get_many_filtered(user_id=user_id)
+    return data
 
 
 @router.post("", status_code=201)
@@ -26,11 +28,9 @@ async def create_booking(db: DBDep, user_id: UserIdDep, request_data: BookingsRe
     room = await db.rooms.get_one(id=request_data.room_id)
     # build booking add schema
     create_data = BookingsWriteSchema(
-        room_id=room.id,
         user_id=user_id,
-        date_from=request_data.date_from,
-        date_to=request_data.date_to,
         price=room.price,
+        **request_data.model_dump()
     )
     # execute
     data = await db.bookings.add(create_data)
