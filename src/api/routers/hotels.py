@@ -19,8 +19,8 @@ async def get_hotels(
     data = await db.hotels.get_all(
         location=location,
         title=title,
-        limit=pagination.per_page,
-        offset=pagination.per_page * (pagination.page - 1),
+        limit=pagination.limit,
+        offset=pagination.offset,
     )
     return data
 

@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from fastapi import Depends, Query, HTTPException, Path, Request, status
-from pydantic import BaseModel
+from pydantic import BaseModel, computed_field
 
 from src.database import async_session_maker
 from src.exceptions import InvalidTokenException
@@ -26,7 +26,16 @@ IdDep = Annotated[int, Depends(id_path_param)]
 
 class PaginationParams(BaseModel):
     page: Annotated[int, Query(ge=1)] = 1
-    per_page: Annotated[int, Query(ge=1, le=100)] = 10
+    per_page: Annotated[int, Query(ge=1, le=1000)] = 100
+
+    @property
+    def limit(self) -> int:
+        return self.per_page
+
+    @computed_field
+    @property
+    def offset(self) -> int:
+        return self.per_page * (self.page - 1)
 
 PaginationDep = Annotated[PaginationParams, Depends()]
 
