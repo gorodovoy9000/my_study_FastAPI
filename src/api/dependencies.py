@@ -3,8 +3,18 @@ from typing import Annotated
 from fastapi import Depends, Query, HTTPException, Path, Request, status
 from pydantic import BaseModel
 
+from src.database import async_session_maker
 from src.exceptions import InvalidTokenException
 from src.service.auth import AuthService
+from src.utils.db_manager import DBManager
+
+
+async def get_db():
+    async with DBManager(async_session_maker) as db:
+        yield db
+
+
+DBDep = Annotated[DBManager, Depends(get_db)]
 
 
 async def id_path_param(hotel_id: int = Path(ge=1)) -> int:
