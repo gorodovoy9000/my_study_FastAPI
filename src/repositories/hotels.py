@@ -13,20 +13,28 @@ class HotelsRepository(BaseRepository):
     model = HotelsOrm
     schema = HotelsSchema
 
-    async def get_all(self, location: str, title: str, limit: int, offset: int) -> list[HotelsSchema]:
-        query = select(HotelsOrm)
-        # optional substring filter by title, location
-        if title:
-            query = query.where(HotelsOrm.title.icontains(title.strip().lower()))
-        if location:
-            query = query.where(HotelsOrm.location.icontains(location.strip().lower()))
-        # pagination
-        query = query.limit(limit).offset(offset)
-        result = await self.session.execute(query)
-        model_objects = result.scalars().all()
-        return [HotelsSchema.model_validate(mo, from_attributes=True) for mo in model_objects]
+    # async def get_all(self, location: str, title: str, limit: int, offset: int) -> list[HotelsSchema]:
+    #     query = select(HotelsOrm)
+    #     # optional substring filter by title, location
+    #     if title:
+    #         query = query.where(HotelsOrm.title.icontains(title.strip().lower()))
+    #     if location:
+    #         query = query.where(HotelsOrm.location.icontains(location.strip().lower()))
+    #     # pagination
+    #     query = query.limit(limit).offset(offset)
+    #     result = await self.session.execute(query)
+    #     model_objects = result.scalars().all()
+    #     return [HotelsSchema.model_validate(mo, from_attributes=True) for mo in model_objects]
 
-    async def get_vacant_rooms(self, date_from: date, date_to: date):
+    async def get_hotels_with_vacant_rooms(
+            self,
+            date_from: date,
+            date_to: date,
+            location: str,
+            title: str,
+            limit: int,
+            offset: int,
+    ) -> list[HotelsSchema]:
         vacant_rooms_ids = query_vacant_rooms(date_from=date_from, date_to=date_to)
 
         hotels_ids_by_vacant_rooms = (
@@ -34,4 +42,18 @@ class HotelsRepository(BaseRepository):
             .select_from(RoomsOrm)
             .filter(RoomsOrm.id.in_(vacant_rooms_ids))
         )
-        return await self.get_many_filtered(HotelsOrm.id.in_(hotels_ids_by_vacant_rooms))
+
+        # filtering
+        filters = [HotelsOrm.id.in_(hotels_ids_by_vacant_rooms),]
+        if title:
+            filters.append(HotelsOrm.title.icontains(title.strip().lower()))
+        if location:
+            filters.append(HotelsOrm.location.icontains(location.strip().lower()))
+
+        # execute and get data
+        data = await self.get_many_filtered(
+            *filters,
+            limit=limit,
+            offset=offset,
+        )
+        return data

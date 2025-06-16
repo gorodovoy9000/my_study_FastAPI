@@ -19,19 +19,13 @@ async def get_hotels(
         title: Annotated[str | None, Query(description="Filter by substring hotel title")] = None,
         location: Annotated[str | None, Query(description="Filter by substring hotel location")] = None,
 ) -> list[HotelsSchema]:
-    # data = await db.hotels.get_all(
-    #     location=location,
-    #     title=title,
-    #     limit=pagination.limit,
-    #     offset=pagination.offset,
-    # )
-    data = await db.hotels.get_vacant_rooms(
+    data = await db.hotels.get_hotels_with_vacant_rooms(
         date_from=date_from,
         date_to=date_to,
-        # location=location,
-        # title=title,
-        # limit=pagination.limit,
-        # offset=pagination.offset,
+        location=location,
+        title=title,
+        limit=pagination.limit,
+        offset=pagination.offset,
     )
     return data
 
