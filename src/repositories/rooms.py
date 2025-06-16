@@ -13,7 +13,7 @@ class RoomsRepository(BaseRepository):
     schema = RoomsSchema
 
     async def get_filtered_by_date(self, hotel_id: int, date_from: date, date_to: date):
-        cte_rooms_count_result = (
+        cte_rooms_booked_result = (
             select(BookingsOrm.room_id, func.count("*").label("rooms_booked"))
             .select_from(BookingsOrm)
             .filter(
@@ -21,16 +21,16 @@ class RoomsRepository(BaseRepository):
                 BookingsOrm.date_to >= date_from,
             )
             .group_by(BookingsOrm.room_id)
-            .cte(name="rooms_count_result")
+            .cte(name="rooms_booked_result")
         )
 
         cte_rooms_remaining_result = (
             select(
                 RoomsOrm.id.label("room_id"),
-                (RoomsOrm.quantity - func.coalesce(cte_rooms_count_result.c.rooms_booked, 0)).label("rooms_remaining")
+                (RoomsOrm.quantity - func.coalesce(cte_rooms_booked_result.c.rooms_booked, 0)).label("rooms_remaining")
             )
             .select_from(RoomsOrm)
-            .outerjoin(cte_rooms_count_result, RoomsOrm.id == cte_rooms_count_result.c.room_id)
+            .outerjoin(cte_rooms_booked_result, RoomsOrm.id == cte_rooms_booked_result.c.room_id)
             .cte("rooms_remaining_result")
         )
 
