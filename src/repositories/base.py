@@ -18,11 +18,11 @@ class BaseRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def get_many_filtered(self, *filter_obj, limit=100, offset=0, **filter_by):
+    async def get_many_filtered(self, *filters, limit=100, offset=0, **filter_by):
         # build query with filters
         query = (
             select(self.model)
-            .filter(*filter_obj)
+            .filter(*filters)
             .filter_by(**filter_by)
         )
         # pagination
