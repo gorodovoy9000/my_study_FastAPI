@@ -36,10 +36,15 @@ class RoomsRepository(BaseRepository):
         to_delete_m2m = db_m2m - given_m2m
         to_add_m2m = given_m2m - db_m2m
         # delete m2m objects
-        filters = [facilities_rooms_at.c.facility_id.in_(to_delete_m2m)]
-        delete_stmt = delete_bulk_to_table(facilities_rooms_at, *filters)
-        await self.session.execute(delete_stmt)
+        if to_delete_m2m:
+            filters = [
+                facilities_rooms_at.c.room_id == room_id,
+                facilities_rooms_at.c.facility_id.in_(to_delete_m2m),
+            ]
+            delete_stmt = delete_bulk_to_table(facilities_rooms_at, *filters)
+            await self.session.execute(delete_stmt)
         # add m2m objects
-        facilities_to_add = [RoomsFacilitiesWrite(room_id=room_id, facility_id=f_id) for f_id in to_add_m2m]
-        add_stmt = add_bulk_to_table(facilities_rooms_at, facilities_to_add)
-        await self.session.execute(add_stmt)
+        if to_add_m2m:
+            facilities_to_add = [RoomsFacilitiesWrite(room_id=room_id, facility_id=f_id) for f_id in to_add_m2m]
+            add_stmt = add_bulk_to_table(facilities_rooms_at, facilities_to_add)
+            await self.session.execute(add_stmt)

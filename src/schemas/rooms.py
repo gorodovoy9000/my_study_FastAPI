@@ -12,7 +12,7 @@ class RoomsBaseSchema(BaseModel):
 
 
 class RoomsRequestPostSchema(RoomsBaseSchema):
-    facilities_ids: list[int] | None = None
+    facilities_ids: list[int] = None
 
 
 class RoomsWriteSchema(RoomsBaseSchema):
@@ -25,7 +25,7 @@ class RoomsRequestPatchSchema(BasePatchSchema):
     description: str | None = None
     price: int = None
     quantity: int = None
-    facilities_ids: list[int] | None = Field(None, exclude=True)
+    facilities_ids: list[int] = Field(None, exclude=True)
 
 
 class RoomsPatchSchema(BasePatchSchema):

@@ -64,7 +64,8 @@ async def update_room(db: DBDep, hotel_id: int, room_id: int, schema_request: Ro
     schema_update = RoomsWriteSchema(**schema_request.model_dump())
     await db.rooms.edit(schema_update, id=room_id)
     # change room facilities
-    await db.rooms.change_facilities_of_room(room_id, schema_request.facilities_ids)
+    if schema_request.facilities_ids is not None:
+        await db.rooms.change_facilities_of_room(room_id, schema_request.facilities_ids)
     await db.commit()
     return {"status": "Ok"}
 
@@ -80,6 +81,7 @@ async def partial_update_room(db: DBDep, hotel_id: int, room_id: int, schema_req
         schema_patch = RoomsPatchSchema(**data_patch)
         await db.rooms.edit(schema_patch, partial_update=True, id=room_id)
     # change room facilities
-    await db.rooms.change_facilities_of_room(room_id, schema_request.facilities_ids)
+    if schema_request.facilities_ids is not None:
+        await db.rooms.change_facilities_of_room(room_id, schema_request.facilities_ids)
     await db.commit()
     return {"status": "Ok"}
