@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from src.schemas.base import BasePatchSchema
 
@@ -25,7 +25,7 @@ class RoomsRequestPatchSchema(BasePatchSchema):
     description: str | None = None
     price: int = None
     quantity: int = None
-    facilities_ids: list[int] | None = None
+    facilities_ids: list[int] | None = Field(None, exclude=True)
 
 
 class RoomsPatchSchema(BasePatchSchema):

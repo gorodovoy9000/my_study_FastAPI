@@ -63,8 +63,8 @@ async def update_room(db: DBDep, hotel_id: int, room_id: int, schema_request: Ro
     # todo redundant hotel_id, when we have room_id which is primary_key
     schema_update = RoomsWriteSchema(**schema_request.model_dump())
     await db.rooms.edit(schema_update, id=room_id)
-    # todo overwrite room facilities
-    pass
+    # change room facilities
+    await db.rooms.change_facilities_of_room(room_id, schema_request.facilities_ids)
     await db.commit()
     return {"status": "Ok"}
 
@@ -75,9 +75,11 @@ async def update_room(db: DBDep, hotel_id: int, room_id: int, schema_request: Ro
 async def partial_update_room(db: DBDep, hotel_id: int, room_id: int, schema_request: RoomsRequestPatchSchema):
     # todo redundant hotel_id, when we have room_id which is primary_key
     # partially update room
-    schema_patch = RoomsPatchSchema(**schema_request.model_dump())
-    await db.rooms.edit(schema_patch, partial_update=True, id=room_id)
-    # todo overwrite room facilities
-    pass
+    data_patch = schema_request.model_dump(exclude_unset=True)
+    if data_patch:
+        schema_patch = RoomsPatchSchema(**data_patch)
+        await db.rooms.edit(schema_patch, partial_update=True, id=room_id)
+    # change room facilities
+    await db.rooms.change_facilities_of_room(room_id, schema_request.facilities_ids)
     await db.commit()
     return {"status": "Ok"}
