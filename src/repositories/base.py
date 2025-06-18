@@ -86,6 +86,10 @@ class BaseRepository:
                 raise UniqueValueException(err)
         return self.schema.model_validate(model_object, from_attributes=True)
 
+    async def add_bulk(self, bulk_data: list[BaseModel]):
+        stmt = insert(self.model).values([schema.model_dump() for schema in bulk_data])
+        await self.session.execute(stmt)
+
     async def edit(self, schema: BaseModel, partial_update = False, **filter_by) -> None:
         # only one object allowed
         await self.get_one(**filter_by)

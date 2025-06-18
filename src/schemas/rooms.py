@@ -11,8 +11,21 @@ class RoomsBaseSchema(BaseModel):
     quantity: int
 
 
+class RoomsRequestPostSchema(RoomsBaseSchema):
+    facilities_ids: list[int] | None = None
+
+
 class RoomsWriteSchema(RoomsBaseSchema):
     pass
+
+
+class RoomsRequestPatchSchema(BasePatchSchema):
+    hotel_id: int = None
+    title: str = None
+    description: str | None = None
+    price: int = None
+    quantity: int = None
+    facilities_ids: list[int] | None = None
 
 
 class RoomsPatchSchema(BasePatchSchema):
@@ -25,3 +38,9 @@ class RoomsPatchSchema(BasePatchSchema):
 
 class RoomsSchema(RoomsBaseSchema):
     id: int
+
+
+# m2m room_facility
+class RoomsFacilitiesWrite(BaseModel):
+    facility_id: int
+    room_id: int
