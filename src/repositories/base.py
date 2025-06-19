@@ -1,6 +1,8 @@
+from abc import ABC
+
 from psycopg.errors import ForeignKeyViolation, NotNullViolation, UniqueViolation
 from pydantic import BaseModel
-from sqlalchemy import delete, insert, select, update
+from sqlalchemy import delete, insert, select, update, Table
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.exc import IntegrityError, MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,7 +13,7 @@ from src.exceptions import (
 )
 
 
-class BaseRepository:
+class BaseRepository(ABC):
     model: DeclarativeBase = None
     schema: BaseModel = None
 
@@ -124,3 +126,59 @@ class BaseRepository:
         except IntegrityError as err:
             if isinstance(err.__context__, ForeignKeyViolation):
                 raise ForeignKeyException(err)
+
+
+class BaseM2MRepository(ABC):
+    table: Table
+
+    def __init__(self, session: AsyncSession, main_column_name: str, target_column_name: str):
+        self.session = session
+        self.main_column_name = main_column_name
+        self.main_column = getattr(self.table.c, self.main_column_name)
+        self.target_column_name = target_column_name
+        self.target_column = getattr(self.table.c, self.target_column_name)
+
+    async def add(self, main_obj_id: int, target_objs_ids: list[int]):
+        """Add target objects to the main object"""
+        # form rows to add dict
+        rows_to_add = [
+            {
+                self.main_column_name: main_obj_id,
+                self.target_column_name: o_id,
+            } for o_id in target_objs_ids
+        ]
+        # build and execute statement
+        stmt = insert(self.table).values(rows_to_add)
+        await self.session.execute(stmt)
+
+    async def delete(self, main_obj_id: int, target_objs_ids: list[int]):
+        """Delete target objects by their ids only linked to the main object"""
+        # form filters to delete rows
+        filters = [
+            self.main_column == main_obj_id,
+            self.target_column.in_(target_objs_ids),
+        ]
+        # build and execute statement
+        stmt = delete(self.table).filter(*filters)
+        await self.session.execute(stmt)
+
+    async def edit(self, main_obj_id: int, target_objs_ids: list[int]):
+        """Edit only changed objects - add not existing, delete missing, do nothing with not changed"""
+        # select db target objects and prepare sets
+        db_m2m_ids = set(await self.select(main_obj_id))
+        given_m2m_ids = set(target_objs_ids)
+        # compare given and db objects ids - form to add and to delete
+        to_delete_m2m_ids = db_m2m_ids - given_m2m_ids
+        to_add_m2m_ids = given_m2m_ids - db_m2m_ids
+        # delete m2m objects
+        if to_delete_m2m_ids:
+            await self.delete(main_obj_id, list(to_delete_m2m_ids))
+        # add m2m objects
+        if to_add_m2m_ids:
+            await self.add(main_obj_id, list(to_add_m2m_ids))
+
+    async def select(self, main_obj_id: int):
+        """Select all objects linked to main"""
+        query = select(self.target_column).filter(self.main_column == main_obj_id)
+        result = await self.session.execute(query)
+        return result.scalars().all()

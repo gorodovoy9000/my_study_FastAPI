@@ -11,7 +11,7 @@ class FacilitiesOrm(Base):
     title: Mapped[str] = mapped_column(String(100))
 
 
-facilities_rooms_at = Table(
+FacilitiesRoomsAssociationTable = Table(
     "facilities_rooms_at",
     Base.metadata,
     Column("facility_id", ForeignKey("facilities.id", ondelete="CASCADE"), primary_key=True),

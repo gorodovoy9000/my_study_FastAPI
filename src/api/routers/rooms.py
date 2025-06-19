@@ -41,7 +41,7 @@ async def create_room(db: DBDep, hotel_id: int, schema_request: RoomsRequestPost
     data = await db.rooms.add(schema_create)
     # add facilities to room by their ids
     if schema_request.facilities_ids:
-        await db.rooms.add_facilities_to_room(data.id, schema_request.facilities_ids)
+        await db.rooms.rooms_facilities_m2m.add(data.id, schema_request.facilities_ids)
     await db.commit()
     return {"status": "Ok", "data": data}
 
@@ -65,7 +65,7 @@ async def update_room(db: DBDep, hotel_id: int, room_id: int, schema_request: Ro
     await db.rooms.edit(schema_update, id=room_id)
     # change room facilities
     if schema_request.facilities_ids is not None:
-        await db.rooms.change_facilities_of_room(room_id, schema_request.facilities_ids)
+        await db.rooms.rooms_facilities_m2m.edit(room_id, schema_request.facilities_ids)
     await db.commit()
     return {"status": "Ok"}
 
@@ -82,6 +82,6 @@ async def partial_update_room(db: DBDep, hotel_id: int, room_id: int, schema_req
         await db.rooms.edit(schema_patch, partial_update=True, id=room_id)
     # change room facilities
     if schema_request.facilities_ids is not None:
-        await db.rooms.change_facilities_of_room(room_id, schema_request.facilities_ids)
+        await db.rooms.rooms_facilities_m2m.edit(room_id, schema_request.facilities_ids)
     await db.commit()
     return {"status": "Ok"}
