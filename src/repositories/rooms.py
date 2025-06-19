@@ -1,9 +1,9 @@
 from datetime import date
 
-from src.models.facilities import FacilitiesRoomsAssociationTable
 from src.models.rooms import RoomsOrm
 from src.repositories.base import BaseRepository, BaseM2MRepository
 from src.repositories.utils.complex_queries import query_vacant_rooms
+from src.support_tables.m2m import FacilitiesRoomsM2MTable
 from src.schemas.rooms import RoomsSchema
 
 
@@ -30,4 +30,4 @@ class RoomsRepository(BaseRepository):
 
 
 class RoomsFacilitiesM2MRepository(BaseM2MRepository):
-    table = FacilitiesRoomsAssociationTable
+    table = FacilitiesRoomsM2MTable
