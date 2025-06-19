@@ -1,10 +1,14 @@
 from datetime import date
 
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
+
 from src.models.rooms import RoomsOrm
 from src.repositories.base import BaseRepository, BaseM2MRepository
 from src.repositories.utils.complex_queries import query_vacant_rooms
-from src.support_tables.m2m import FacilitiesRoomsM2MTable
 from src.schemas.rooms import RoomsSchema
+from src.schemas.relations import RoomsRelsSchema
+from src.support_tables.m2m import FacilitiesRoomsM2MTable
 
 
 class RoomsRepository(BaseRepository):
@@ -26,7 +30,15 @@ class RoomsRepository(BaseRepository):
 
         vacant_rooms_ids = query_vacant_rooms(date_from=date_from, date_to=date_to, hotel_id=hotel_id)
 
-        return await self.get_many_filtered(RoomsOrm.id.in_(vacant_rooms_ids))
+        query = (
+            select(self.model)
+            .options(selectinload(self.model.facilities))
+            .filter(RoomsOrm.id.in_(vacant_rooms_ids))
+        )
+        # execute
+        result = await self.session.execute(query)
+        model_objects = result.scalars().all()
+        return [RoomsRelsSchema.model_validate(mo, from_attributes=True) for mo in model_objects]
 
 
 class RoomsFacilitiesM2MRepository(BaseM2MRepository):

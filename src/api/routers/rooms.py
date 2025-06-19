@@ -5,10 +5,10 @@ from fastapi import APIRouter
 from src.api.dependencies import DBDep
 from src.api.exceptions import only_one_error_handler, constrain_violation_error_handler
 from src.schemas.rooms import (
-    RoomsSchema,
     RoomsRequestPatchSchema, RoomsRequestPostSchema,
     RoomsPatchSchema, RoomsWriteSchema,
 )
+from src.schemas.relations import RoomsRelsSchema
 
 # rooms linked to hotels
 router = APIRouter(prefix="/hotels", tags=["HotelRooms"])
@@ -20,8 +20,8 @@ async def get_rooms(
         hotel_id: int,
         date_from: date,
         date_to: date,
-) -> list[RoomsSchema]:
-    data = await db.rooms.get_filtered_by_date(hotel_id=hotel_id, date_from=date_from, date_to=date_to)
+) -> list[RoomsRelsSchema]:
+    data = await db.rooms.get_vacant_rooms_by_hotel(hotel_id=hotel_id, date_from=date_from, date_to=date_to)
     return data
 
 

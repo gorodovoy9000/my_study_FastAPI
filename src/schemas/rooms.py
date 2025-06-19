@@ -38,9 +38,3 @@ class RoomsPatchSchema(BasePatchSchema):
 
 class RoomsSchema(RoomsBaseSchema):
     id: int
-
-
-# m2m room_facility
-class RoomsFacilitiesWrite(BaseModel):
-    facility_id: int
-    room_id: int
