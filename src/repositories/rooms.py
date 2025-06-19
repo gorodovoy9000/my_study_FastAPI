@@ -14,6 +14,7 @@ from src.support_tables.m2m import FacilitiesRoomsM2MTable
 class RoomsRepository(BaseRepository):
     model = RoomsOrm
     schema = RoomsSchema
+    schema_rels = RoomsRelsSchema
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -29,7 +30,7 @@ class RoomsRepository(BaseRepository):
     async def get_vacant_rooms_by_hotel(self, date_from: date, date_to: date, hotel_id: int):
 
         vacant_rooms_ids = query_vacant_rooms(date_from=date_from, date_to=date_to, hotel_id=hotel_id)
-
+        # todo build general abstract select for relations in base repo
         query = (
             select(self.model)
             .options(selectinload(self.model.facilities))
@@ -38,7 +39,20 @@ class RoomsRepository(BaseRepository):
         # execute
         result = await self.session.execute(query)
         model_objects = result.scalars().all()
-        return [RoomsRelsSchema.model_validate(mo, from_attributes=True) for mo in model_objects]
+        return [self.schema_rels.model_validate(mo, from_attributes=True) for mo in model_objects]
+
+    async def get_one(self, **filter_by):
+        # todo build general abstract select for relations in base repo
+        # build query
+        query = (
+            select(self.model)
+            .options(selectinload(self.model.facilities))
+            .filter_by(**filter_by)
+        )
+        # execute
+        result = await self.session.execute(query)
+        model_object = result.scalars().one()
+        return self.schema_rels.model_validate(model_object, from_attributes=True)
 
 
 class RoomsFacilitiesM2MRepository(BaseM2MRepository):
