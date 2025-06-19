@@ -29,7 +29,7 @@ async def get_rooms(
 @only_one_error_handler
 async def get_room(db: DBDep, hotel_id: int, room_id: int) -> RoomsRelsSchema:
     # todo redundant hotel_id, when we have room_id which is primary_key
-    data = await db.rooms.get_one(id=room_id)
+    data = await db.rooms.get_one_with_rels(id=room_id)
     return data
 
 

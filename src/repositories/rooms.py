@@ -41,7 +41,7 @@ class RoomsRepository(BaseRepository):
         model_objects = result.scalars().all()
         return [self.schema_rels.model_validate(mo, from_attributes=True) for mo in model_objects]
 
-    async def get_one(self, **filter_by):
+    async def get_one_with_rels(self, **filter_by):
         # todo build general abstract select for relations in base repo
         # build query
         query = (
