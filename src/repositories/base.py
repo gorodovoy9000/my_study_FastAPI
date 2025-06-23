@@ -11,11 +11,12 @@ from src.exceptions import (
     ForeignKeyException, ManyFoundException, NullValueException,
     NotFoundException, UniqueValueException,
 )
+from src.repositories.mappers.base import BaseDataMapper
 
 
 class BaseRepository(ABC):
-    model: DeclarativeBase = None
-    schema: BaseModel = None
+    model: DeclarativeBase
+    mapper: BaseDataMapper
 
     def __init__(self, session: AsyncSession):
         self.session = session
@@ -32,7 +33,7 @@ class BaseRepository(ABC):
         # execute
         result = await self.session.execute(query)
         model_objects = result.scalars().all()
-        return [self.schema.model_validate(mo, from_attributes=True) for mo in model_objects]
+        return [self.mapper.map_to_domain_entity(mo) for mo in model_objects]
 
     async def get_all(self):
         return await self.get_many_filtered()
@@ -48,7 +49,7 @@ class BaseRepository(ABC):
             raise NotFoundException(err)
         except MultipleResultsFound as err:
             raise ManyFoundException(err)
-        return self.schema.model_validate(model_object, from_attributes=True)
+        return self.mapper.map_to_domain_entity(model_object)
 
     async def get_one_or_none(self, **filter_by):
         # build query
@@ -64,13 +65,13 @@ class BaseRepository(ABC):
         # return None or schema
         if not model_object:
             return None
-        return self.schema.model_validate(model_object, from_attributes=True)
+        return self.mapper.map_to_domain_entity(model_object)
 
-    async def add(self, schema: BaseModel):
+    async def add(self, in_data: BaseModel):
         # build insert statement
         stmt = (
             insert(self.model)
-            .values(**schema.model_dump())
+            .values(**in_data.model_dump())
             .returning(self.model)
         )
         # debug stmt print
@@ -86,19 +87,19 @@ class BaseRepository(ABC):
                 raise NullValueException(err)
             elif isinstance(err.__context__, UniqueViolation):
                 raise UniqueValueException(err)
-        return self.schema.model_validate(model_object, from_attributes=True)
+        return self.mapper.map_to_domain_entity(model_object)
 
     async def add_bulk(self, bulk_data: list[BaseModel]):
-        stmt = insert(self.model).values([schema.model_dump() for schema in bulk_data])
+        stmt = insert(self.model).values([d.model_dump() for d in bulk_data])
         await self.session.execute(stmt)
 
-    async def edit(self, schema: BaseModel, partial_update = False, **filter_by) -> None:
+    async def edit(self, in_data: BaseModel, partial_update = False, **filter_by) -> None:
         # only one object allowed
         await self.get_one(**filter_by)
         # build update statement
         stmt = (
             update(self.model)
-            .values(**schema.model_dump(exclude_unset=partial_update))
+            .values(**in_data.model_dump(exclude_unset=partial_update))
             .filter_by(**filter_by)
         )
         # execute and check about constrain violations

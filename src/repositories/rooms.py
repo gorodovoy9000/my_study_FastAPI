@@ -5,16 +5,15 @@ from sqlalchemy.orm import selectinload
 
 from src.models.rooms import RoomsOrm
 from src.repositories.base import BaseRepository, BaseM2MRepository
+from src.repositories.mappers.mappers import RoomsDataMapper, RoomsRelsDataMapper
 from src.repositories.utils.complex_queries import query_vacant_rooms
-from src.schemas.rooms import RoomsSchema
-from src.schemas.relations import RoomsRelsSchema
 from src.support_tables.m2m import FacilitiesRoomsM2MTable
 
 
 class RoomsRepository(BaseRepository):
     model = RoomsOrm
-    schema = RoomsSchema
-    schema_rels = RoomsRelsSchema
+    mapper = RoomsDataMapper
+    mapper_rels = RoomsRelsDataMapper
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -39,7 +38,7 @@ class RoomsRepository(BaseRepository):
         # execute
         result = await self.session.execute(query)
         model_objects = result.scalars().all()
-        return [self.schema_rels.model_validate(mo, from_attributes=True) for mo in model_objects]
+        return [self.mapper_rels.map_to_domain_entity(mo) for mo in model_objects]
 
     async def get_one_with_rels(self, **filter_by):
         # todo build general abstract select for relations in base repo
@@ -52,7 +51,7 @@ class RoomsRepository(BaseRepository):
         # execute
         result = await self.session.execute(query)
         model_object = result.scalars().one()
-        return self.schema_rels.model_validate(model_object, from_attributes=True)
+        return self.mapper_rels.map_to_domain_entity(model_object)
 
 
 class RoomsFacilitiesM2MRepository(BaseM2MRepository):

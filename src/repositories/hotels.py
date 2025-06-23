@@ -5,13 +5,13 @@ from sqlalchemy import select
 from src.models.hotels import HotelsOrm
 from src.models.rooms import RoomsOrm
 from src.repositories.base import BaseRepository
+from src.repositories.mappers.mappers import HotelDataMapper
 from src.repositories.utils.complex_queries import query_vacant_rooms
-from src.schemas.hotels import HotelsSchema
 
 
 class HotelsRepository(BaseRepository):
     model = HotelsOrm
-    schema = HotelsSchema
+    mapper = HotelDataMapper
 
     # async def get_all(self, location: str, title: str, limit: int, offset: int) -> list[HotelsSchema]:
     #     query = select(HotelsOrm)
@@ -34,7 +34,7 @@ class HotelsRepository(BaseRepository):
             title: str,
             limit: int,
             offset: int,
-    ) -> list[HotelsSchema]:
+    ):
         vacant_rooms_ids = query_vacant_rooms(date_from=date_from, date_to=date_to)
 
         hotels_ids_by_vacant_rooms = (
