@@ -38,7 +38,7 @@ class BaseRepository(ABC):
     async def get_all(self):
         return await self.get_many_filtered()
 
-    async def get_one(self, **filter_by):
+    async def get_one(self, orm_output=False, **filter_by):
         # build query
         query = select(self.model).filter_by(**filter_by)
         # execute and check about none or many objects found
@@ -49,6 +49,8 @@ class BaseRepository(ABC):
             raise NotFoundException(err)
         except MultipleResultsFound as err:
             raise ManyFoundException(err)
+        if orm_output:
+            return model_object
         return self.mapper.map_to_domain_entity(model_object)
 
     async def get_one_or_none(self, **filter_by):
