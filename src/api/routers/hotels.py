@@ -2,6 +2,7 @@ from datetime import date
 from typing import Annotated
 
 from fastapi import APIRouter, Query
+from fastapi_cache.decorator import cache
 
 from src.api.dependencies import DBDep, PaginationDep
 from src.api.exceptions import only_one_error_handler
@@ -11,6 +12,7 @@ router = APIRouter(prefix="/hotels", tags=["hotels"])
 
 
 @router.get("")
+@cache(expire=5)
 async def get_hotels(
         db: DBDep,
         pagination: PaginationDep,
