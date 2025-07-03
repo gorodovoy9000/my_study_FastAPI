@@ -6,7 +6,7 @@ services:
             - POSTGRES_USER=${DB_USER}
             - POSTGRES_PASSWORD=${DB_PASS}
         ports:
-            - "${DB_PORT}:${DB_PORT}"
+            - "${DB_PORT:-5432}:${DB_PORT:-5432}"
         volumes:
             - pgdata:/var/lib/postgresql/data
 
@@ -19,6 +19,7 @@ services:
             - PYTHONUNBUFFERED=1
         depends_on:
             - db
+            - redis
         ports:
             - "8000:8000"
         volumes:
@@ -27,6 +28,11 @@ services:
             - ./src/migrations/versions:/opt/fastapi_app/src/migrations/versions
         command: >
             bash -c "fastapi dev --host 0.0.0.0 --port 8000 src/main.py"
+
+    redis:
+        image: redis:8
+        ports:
+            - "${REDIS_PORT:-6379}:${REDIS_PORT:-6379}"
 
 volumes:
     pgdata:
