@@ -17,6 +17,13 @@ class Settings(BaseSettings):
     # Redis
     REDIS_HOST: str = "redis"
     REDIS_PORT: int = 6379
+    # REDIS_USER: str = None
+    # REDIS_PASS: str = None
+    # REDIS_DB_NAME: int = 0
+
+    @property
+    def REDIS_URL(self) -> str:
+        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}"
 
     # JWT
     JWT_SECRET_KEY: str

@@ -10,6 +10,13 @@ services:
         volumes:
             - pgdata:/var/lib/postgresql/data
 
+    redis:
+        image: redis:8
+        ports:
+            - "${REDIS_PORT:-6379}:${REDIS_PORT:-6379}"
+        volumes:
+            - redis_data:/data
+
     backend:
         build:
             context: ./
@@ -29,12 +36,19 @@ services:
         command: >
             bash -c "fastapi dev --host 0.0.0.0 --port 8000 src/main.py"
 
-    redis:
-        image: redis:8
-        ports:
-            - "${REDIS_PORT:-6379}:${REDIS_PORT:-6379}"
+    celery_worker:
+        build:
+            context: ./
+            dockerfile: ./dev.Dockerfile
+        env_file: ".env"
+        environment:
+            - PYTHONUNBUFFERED=1
+        depends_on:
+            - backend
+            - redis
         volumes:
-            - redis_data:/data
+            - ./src:/opt/fastapi_app/src:ro
+        command: "celery --app=src.background_tasks.celery.app:celery_app worker -l INFO"
 
 volumes:
     pgdata:
