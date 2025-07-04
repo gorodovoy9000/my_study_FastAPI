@@ -3,6 +3,7 @@ from fastapi_cache.decorator import cache
 
 from src.api.dependencies import DBDep, PaginationDep
 from src.api.exceptions import only_one_error_handler
+from src.background_tasks.celery.tasks import test_task
 from src.schemas.facilities import FacilitiesSchema, FacilitiesPatchSchema, FacilitiesWriteSchema
 
 router = APIRouter(prefix="/facilities", tags=["facilities"])
@@ -30,6 +31,8 @@ async def create_facility(db: DBDep, schema_create: FacilitiesWriteSchema):
     data = await db.facilities.add(schema_create)
     # transaction commit MUST stay here!
     await db.commit()
+    # todo test Celery task
+    test_task.delay()
     return {"status": "Ok", "data": data}
 
 
