@@ -8,3 +8,6 @@ def test_task():
     print("Test task started")
     sleep(5)
     print("Test task finished")
+
+
+# todo resize image task
