@@ -36,3 +36,10 @@ class InvalidPasswordException(Exception):
 
 class InvalidTokenException(Exception):
     pass
+
+# files exceptions
+class FileAlreadyExistsException(Exception):
+    pass
+
+class FileNotFoundException(Exception):
+    pass
