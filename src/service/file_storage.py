@@ -54,9 +54,9 @@ class FileStorageService:
     manager: LocalFileManager
     FilenameSchema: type[Filename]
 
-    def get_abs_filepath(self, rel_filepath: str) -> str:
+    def get_abs_filepath(self, rel_filepath: str, not_found_err=True) -> str:
         # just return absolute file path
-        return self.manager.get_abs_filepath(rel_filepath)
+        return self.manager.get_abs_filepath(rel_filepath, not_found_err)
 
     def create_file(self, original_filename: str, data: typing.BinaryIO):
         # build storage filename
