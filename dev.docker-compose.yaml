@@ -52,6 +52,21 @@ services:
             - ./src:/opt/fastapi_app/src:ro
         command: "celery --app=src.background_tasks.celery.app:celery_app worker -l INFO"
 
+    celery_beat:
+        build:
+            context: ./
+            dockerfile: ./dev.Dockerfile
+        env_file: ".env"
+        environment:
+            - PYTHONUNBUFFERED=1
+        depends_on:
+            - backend
+            - redis
+        volumes:
+            - "media:${LOCAL_MEDIA_ROOT}"
+            - ./src:/opt/fastapi_app/src:ro
+        command: "celery --app=src.background_tasks.celery.app:celery_app beat -l INFO"
+
 volumes:
     media:
     pgdata:

@@ -9,3 +9,10 @@ celery_app = Celery(
         "src.background_tasks.celery.tasks",
     ],
 )
+
+celery_app.conf.beat_schedule = {
+    "check_today_bookings": {
+        "task": "booking_today_checkin",
+        "schedule": 5,
+    }
+}
