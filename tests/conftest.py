@@ -1,3 +1,5 @@
+import json
+
 from httpx import AsyncClient, ASGITransport
 import pytest
 
@@ -22,11 +24,8 @@ async def setup_database(check_test_mode):
 
 @pytest.fixture(scope="session", autouse=True)
 async def register_user(setup_database):
+    with open("tests/mock_users.json") as fo:
+        users_data = json.load(fo)
     async with AsyncClient(base_url="http://test", transport=ASGITransport(app=app)) as ac:
-        await ac.post(
-            "/auth/register",
-            json={
-                "email": "test1@test.com",
-                "password": "password"
-            }
-        )
+       for u in users_data:
+            await ac.post("/auth/register", json=u)
