@@ -20,6 +20,8 @@ dependencies = [
 [dependency-groups]
 dev = [
     "pytest>=8.4.1",
+    "pytest-asyncio>=1.0.0",
+    "pytest-env>=1.1.5",
     "ruff>=0.12.2",
 ]
 
@@ -27,8 +29,17 @@ dev = [
 minversion = "8.4"
 addopts = "-ra -q"
 pythonpath = [
-    ".", "src",
+    ".",
 ]
 testpaths = [
     "tests",
+]
+env = [
+    "MODE=TEST",
+    "DB_USER=postgres",
+    "DB_PASS=postgres",
+    "DB_NAME=test",
+    "JWT_SECRET_KEY=super_secret_key",
+    "JWT_ALGORITHM=HS256",
+    "LOCAL_MEDIA_ROOT=/opt/media_storage/",
 ]
