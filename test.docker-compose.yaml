@@ -1,0 +1,38 @@
+services:
+    db:
+        image: postgres:17
+        environment:
+            - POSTGRES_DB=test
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+        expose:
+            - 5432
+        volumes:
+            - test_pgdata:/var/lib/postgresql/data
+
+    redis:
+        image: redis:8
+        expose:
+            - 6379
+        volumes:
+            - test_redis_data:/data
+
+    test:
+        build:
+            context: ./
+            dockerfile: ./dev.Dockerfile
+        depends_on:
+            - db
+            - redis
+        expose:
+            - 8000
+        volumes:
+            - ./pyproject.toml:/opt/fastapi_app/pyproject.toml:ro
+            - ./src:/opt/fastapi_app/src:ro
+            - ./tests:/opt/fastapi_app/tests:ro
+        command: bash -c "pytest"
+
+
+volumes:
+    test_pgdata:
+    test_redis_data:
