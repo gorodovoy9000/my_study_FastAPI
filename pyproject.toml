@@ -34,6 +34,7 @@ pythonpath = [
 testpaths = [
     "tests",
 ]
+asyncio_mode = "auto"
 env = [
     "MODE=TEST",
     "DB_USER=postgres",
