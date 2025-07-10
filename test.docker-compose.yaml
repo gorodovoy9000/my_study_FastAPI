@@ -27,7 +27,7 @@ services:
         expose:
             - 8000
         volumes:
-            - ./pyproject.toml:/opt/fastapi_app/pyproject.toml:ro
+            - ./pytest.ini:/opt/fastapi_app/pytest.ini:ro
             - ./src:/opt/fastapi_app/src:ro
             - ./tests:/opt/fastapi_app/tests:ro
         command: bash -c "pytest"
