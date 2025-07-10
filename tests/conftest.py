@@ -25,7 +25,25 @@ async def setup_database(check_test_mode):
 @pytest.fixture(scope="session", autouse=True)
 async def register_user(setup_database):
     with open("tests/mock_users.json") as fo:
-        users_data = json.load(fo)
+        data = json.load(fo)
     async with AsyncClient(base_url="http://test", transport=ASGITransport(app=app)) as ac:
-       for u in users_data:
-            await ac.post("/auth/register", json=u)
+       for obj in data:
+            await ac.post("/auth/register", json=obj)
+
+
+@pytest.fixture(scope="session", autouse=True)
+async def add_hotels(setup_database):
+    with open("tests/mock_hotels.json") as fo:
+        data = json.load(fo)
+    async with AsyncClient(base_url="http://test", transport=ASGITransport(app=app)) as ac:
+        for obj in data:
+            await ac.post("/hotels", json=obj)
+
+
+@pytest.fixture(scope="session", autouse=True)
+async def add_rooms(setup_database):
+    with open("tests/mock_rooms.json") as fo:
+        data = json.load(fo)
+    async with AsyncClient(base_url="http://test", transport=ASGITransport(app=app)) as ac:
+        for obj in data:
+            await ac.post("/rooms", json=obj)

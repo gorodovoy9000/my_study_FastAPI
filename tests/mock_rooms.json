@@ -1,0 +1,30 @@
+[
+    {
+        "hotel_id": 1,
+        "title": "Lux with terrace and view on lake",
+        "description": "Unbelievably gorgeous room.",
+        "price": 24500,
+        "quantity": 5
+    },
+    {
+        "hotel_id": 1,
+        "title": "Delux plus",
+        "description": "Best room of the hotel.",
+        "price": 22450,
+        "quantity": 10
+    },
+    {
+        "hotel_id": 2,
+        "title": "Room for 2 people",
+        "description": "Beautiful view from windows.",
+        "price": 4570,
+        "quantity": 15
+    },
+    {
+        "hotel_id": 3,
+        "title": "Room for 3 people",
+        "description": null,
+        "price": 4350,
+        "quantity": 8
+    }
+]
