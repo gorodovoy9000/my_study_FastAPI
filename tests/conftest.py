@@ -1,4 +1,5 @@
 import json
+from typing import AsyncGenerator
 
 from httpx import AsyncClient, ASGITransport
 import pytest
@@ -13,11 +14,26 @@ from src.schemas.rooms import RoomsWriteSchema
 from src.utils.db_manager import DBManager
 
 
+# DO NOT RUN TESTS IF APP MODE IS NOT "TEST"
 @pytest.fixture(scope="session", autouse=True)
 def check_test_mode():
     assert settings.MODE == "TEST"
 
 
+# callable fixtures
+@pytest.fixture()
+async def db() -> AsyncGenerator[DBManager, None]:
+    async with DBManager(session_factory=async_session_maker_null_pool) as db:
+        yield db
+
+
+@pytest.fixture(scope="session")
+async def ac() -> AsyncGenerator[AsyncClient, None]:
+    async with AsyncClient(base_url="http://test", transport=ASGITransport(app=app)) as ac:
+        yield ac
+
+
+# auto start fixtures
 @pytest.fixture(scope="session", autouse=True)
 async def setup_database(check_test_mode):
     # clean db and create tables
@@ -35,17 +51,16 @@ async def setup_database(check_test_mode):
     hotels_schema = [HotelsWriteSchema.model_validate(obj) for obj in hotels_data]
     rooms_schema = [RoomsWriteSchema.model_validate(obj) for obj in rooms_data]
 
-    #
-    async with DBManager(session_factory=async_session_maker_null_pool) as db:
-        await db.hotels.add_bulk(hotels_schema)
-        await db.rooms.add_bulk(rooms_schema)
-        await db.commit()
+    # fill db
+    async with DBManager(session_factory=async_session_maker_null_pool) as db_:
+        await db_.hotels.add_bulk(hotels_schema)
+        await db_.rooms.add_bulk(rooms_schema)
+        await db_.commit()
 
 
 @pytest.fixture(scope="session", autouse=True)
-async def register_user(setup_database):
+async def register_user(setup_database, ac):
     with open("tests/mock_users.json") as fo:
         data = json.load(fo)
-    async with AsyncClient(base_url="http://test", transport=ASGITransport(app=app)) as ac:
-       for obj in data:
-            await ac.post("/auth/register", json=obj)
+    for obj in data:
+        await ac.post("/auth/register", json=obj)
