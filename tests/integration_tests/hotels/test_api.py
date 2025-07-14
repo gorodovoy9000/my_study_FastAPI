@@ -9,5 +9,5 @@ async def test_get_hotels(ac):
             'date_to': "2025-08-10",
         }
     )
-    assert response.is_success
     print(response.json())
+    assert response.is_success
