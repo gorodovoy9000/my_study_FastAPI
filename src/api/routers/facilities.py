@@ -10,7 +10,8 @@ router = APIRouter(prefix="/facilities", tags=["facilities"])
 
 
 @router.get("")
-@cache(expire=5)
+# todo temporary cache disable
+# @cache(expire=5)
 async def get_facilities(db: DBDep, pagination: PaginationDep) -> list[FacilitiesSchema]:
     data = await db.facilities.get_many_filtered(
         limit=pagination.limit,
