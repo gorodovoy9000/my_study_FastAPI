@@ -4,6 +4,7 @@ from typing import AsyncGenerator
 from httpx import AsyncClient, ASGITransport
 import pytest
 
+from src.api.dependencies import get_db
 from src.config import settings
 from src.database import Base, engine_null_pool, async_session_maker_null_pool
 from src.main import app
@@ -18,6 +19,14 @@ from src.utils.db_manager import DBManager
 @pytest.fixture(scope="session", autouse=True)
 def check_test_mode():
     assert settings.MODE == "TEST"
+
+
+async def get_db_null_pool():
+    async with DBManager(session_factory=async_session_maker_null_pool) as db:
+        yield db
+
+
+app.dependency_overrides[get_db] = get_db_null_pool
 
 
 # callable fixtures
@@ -63,4 +72,5 @@ async def register_user(setup_database, ac):
     with open("tests/mock_users.json") as fo:
         data = json.load(fo)
     for obj in data:
-        await ac.post("/auth/register", json=obj)
+        response = await ac.post("/auth/register", json=obj)
+        assert response.is_success
