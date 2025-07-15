@@ -1,8 +1,9 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException, status
 
 
 from src.api.dependencies import DBDep, UserIdDep
 from src.api.exceptions import only_one_error_handler
+from src.exceptions import NoVacantRoomsException
 from src.schemas.bookings import BookingsRequestSchema, BookingsSchema, BookingsWriteSchema
 
 
@@ -33,6 +34,12 @@ async def create_booking(db: DBDep, user_id: UserIdDep, request_data: BookingsRe
         **request_data.model_dump()
     )
     # execute
-    data = await db.bookings.add(create_data)
+    try:
+        data = await db.bookings.add_booking(create_data)
+    except NoVacantRoomsException as err:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(err)
+        )
     await db.commit()
     return {"status": "Ok", "data": data}

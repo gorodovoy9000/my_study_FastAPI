@@ -43,3 +43,8 @@ class FileAlreadyExistsException(Exception):
 
 class FileNotFoundException(Exception):
     pass
+
+
+# business logic exceptions
+class NoVacantRoomsException(Exception):
+    pass
