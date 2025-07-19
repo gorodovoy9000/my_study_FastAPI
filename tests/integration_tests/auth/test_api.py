@@ -40,7 +40,7 @@ async def test_auth_flow(
     # logout user
     response = await ac.post("auth/logout")
     assert response.is_success
-    assert not response.cookies.get('access_token')
+    assert "access_token" not in response.cookies
 
     # check auth error after logout and get auth/me
     response = await ac.get("auth/me")
