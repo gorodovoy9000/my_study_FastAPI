@@ -33,6 +33,9 @@ async def test_auth_flow(
     assert response.is_success
     response_payload = response.json()
     assert response_payload['username'] == username
+    assert "id" in response_payload
+    assert "password" not in response_payload
+    assert "hashed_password" not in response_payload
 
     # logout user
     response = await ac.post("auth/logout")
