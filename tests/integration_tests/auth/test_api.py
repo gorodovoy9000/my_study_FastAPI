@@ -41,7 +41,7 @@ async def test_auth_flow(
 
     # check auth error after logout and get auth/me
     response = await ac.get("auth/me")
-    assert response.is_error
+    assert response.status_code == 401
 
 
 async def test_already_registered(ac):
@@ -50,7 +50,7 @@ async def test_already_registered(ac):
         "email": "best@syth.com",
         "password": "red_saber",
     })
-    assert response.is_error
+    assert response.status_code == 422
 
 
 async def test_invalid_password(ac):
@@ -58,4 +58,4 @@ async def test_invalid_password(ac):
         "email": "the-best@bright.com",
         "password": "green_saber",
     })
-    assert response.is_error
+    assert response.status_code == 401
