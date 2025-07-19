@@ -2,13 +2,15 @@ from sqlalchemy import delete
 import pytest
 
 from src.models.bookings import BookingsOrm
+from tests.conftest import get_db_null_pool
 
 
-@pytest.fixture(scope="class")
-async def delete_all_bookings(db):
-    stmt = delete(BookingsOrm)
-    await db.session.execute(stmt)
-    await db.session.commit()
+@pytest.fixture(scope="module")
+async def delete_all_bookings():
+    async for _db in get_db_null_pool():
+        stmt = delete(BookingsOrm)
+        await _db.session.execute(stmt)
+        await _db.commit()
 
 
 @pytest.mark.parametrize("room_id, date_from, date_to, status_code", [
