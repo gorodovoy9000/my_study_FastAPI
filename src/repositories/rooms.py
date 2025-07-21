@@ -34,8 +34,8 @@ class RoomsRepository(BaseRepository):
         )
         # todo build general abstract select for relations in base repo
         query = (
-            select(self.model)
-            .options(selectinload(self.model.facilities))
+            select(RoomsOrm)
+            .options(selectinload(RoomsOrm.facilities))
             .filter(RoomsOrm.id.in_(vacant_rooms_ids))
         )
         # execute
@@ -47,8 +47,8 @@ class RoomsRepository(BaseRepository):
         # todo build general abstract select for relations in base repo
         # build query
         query = (
-            select(self.model)
-            .options(selectinload(self.model.facilities))
+            select(RoomsOrm)
+            .options(selectinload(RoomsOrm.facilities))
             .filter_by(**filter_by)
         )
         # execute
