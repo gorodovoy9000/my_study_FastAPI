@@ -15,10 +15,7 @@ class BookingsRepository(BaseRepository):
     mapper = BookingsDataMapper
 
     async def get_bookings_with_today_checkin(self):
-        query = (
-            select(BookingsOrm)
-            .filter(BookingsOrm.date_from == date.today())
-        )
+        query = select(BookingsOrm).filter(BookingsOrm.date_from == date.today())
         result = await self.session.execute(query)
         return [self.mapper.map_to_domain_entity(bo) for bo in result.scalars().all()]
 
@@ -37,9 +34,7 @@ class BookingsRepository(BaseRepository):
         room_bookings = result.scalars().one()
         # get room vacant quantity
         query_vacant_room_quantity = (
-            select(
-                (RoomsOrm.quantity - room_bookings).label("vacant_rooms")
-            )
+            select((RoomsOrm.quantity - room_bookings).label("vacant_rooms"))
             .select_from(RoomsOrm)
             .filter(RoomsOrm.id == create_booking_data.room_id)
         )
