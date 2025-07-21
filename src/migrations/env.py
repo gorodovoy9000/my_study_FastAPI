@@ -7,8 +7,8 @@ from alembic import context
 
 # our DB
 from src.database import Base
-from src.models.bookings import *
-from src.support_tables import *
+from src.models.bookings import *  # noqa: F403
+from src.support_tables import *  # noqa: F403
 
 # our settings
 from src.config import settings

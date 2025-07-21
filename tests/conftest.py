@@ -1,3 +1,4 @@
+# ruff: noqa: E402
 import json
 from typing import AsyncGenerator
 from unittest import mock
@@ -12,8 +13,8 @@ from src.api.dependencies import get_db
 from src.config import settings
 from src.database import Base, engine_null_pool, async_session_maker_null_pool
 from src.main import app
-from src.models import *
-from src.support_tables import *
+from src.models import *  # noqa: F403
+from src.support_tables import *  # noqa: F403
 from src.schemas.hotels import HotelsWriteSchema
 from src.schemas.rooms import RoomsWriteSchema
 from src.utils.db_manager import DBManager

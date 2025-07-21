@@ -14,12 +14,12 @@ def only_one_error_handler(func):
     async def wrapper(*args, **kwargs):
         try:
             return await func(*args, **kwargs)
-        except NotFoundException as err:
+        except NotFoundException:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Object not found",
             )
-        except ManyFoundException as err:
+        except ManyFoundException:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail="Multiple objects found, only one allowed",
