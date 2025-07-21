@@ -9,7 +9,7 @@ from src.models.rooms import RoomsOrm
 def query_vacant_rooms(
     date_from: date,
     date_to: date,
-    hotel_id: int = None,
+    hotel_id: int = 0,
 ):
     cte_rooms_booked_result = (
         # FROM Bookings select rooms ids with counter

@@ -1,12 +1,13 @@
+from typing import Sequence
 from abc import ABC
 
 from psycopg.errors import ForeignKeyViolation, NotNullViolation, UniqueViolation
 from pydantic import BaseModel
 from sqlalchemy import delete, insert, select, update, Table
-from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.exc import IntegrityError, MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.database import Base
 from src.exceptions import (
     ForeignKeyException,
     ManyFoundException,
@@ -18,8 +19,8 @@ from src.repositories.mappers.base import BaseDataMapper
 
 
 class BaseRepository(ABC):
-    model: DeclarativeBase
-    mapper: BaseDataMapper
+    model: type[Base]
+    mapper: type[BaseDataMapper]
 
     def __init__(self, session: AsyncSession):
         self.session = session
@@ -92,7 +93,7 @@ class BaseRepository(ABC):
                 raise UniqueValueException(err)
         return self.mapper.map_to_domain_entity(model_object)
 
-    async def add_bulk(self, bulk_data: list[BaseModel]):
+    async def add_bulk(self, bulk_data: Sequence[BaseModel]):
         stmt = insert(self.model).values([d.model_dump() for d in bulk_data])
         await self.session.execute(stmt)
 

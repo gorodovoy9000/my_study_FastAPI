@@ -1,15 +1,16 @@
 from abc import ABC
 
 from pydantic import BaseModel
-from sqlalchemy.orm import DeclarativeBase
+
+from src.database import Base
 
 
 class BaseDataMapper(ABC):
-    ModelOrmCls: type[DeclarativeBase]
+    ModelOrmCls: type[Base]
     SchemaCls: type[BaseModel]
 
     @classmethod
-    def map_to_domain_entity(cls, data: DeclarativeBase):
+    def map_to_domain_entity(cls, data: Base):
         return cls.SchemaCls.model_validate(data, from_attributes=True)
 
     @classmethod
