@@ -16,11 +16,10 @@ from src.api.routers.rooms import router as hotel_rooms_router
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # before app start
-    await redis_connector.connect()
     FastAPICache.init(RedisBackend(redis_connector.redis), prefix="fastapi-cache")
     yield
-    await redis_connector.close()
     # after app stop
+    await redis_connector.close()
 
 
 app = FastAPI(lifespan=lifespan)
