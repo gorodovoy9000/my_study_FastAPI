@@ -20,7 +20,7 @@ async def test_booking_crud(db):
 
     # get created booking
     booking = await db.bookings.get_one(id=created_booking.id)
-    assert booking.model_dump(exclude={'id'}) == create_data.model_dump()
+    assert booking.model_dump(exclude={"id"}) == create_data.model_dump()
 
     # update booking
     update_data = BookingsWriteSchema(
@@ -32,7 +32,7 @@ async def test_booking_crud(db):
     )
     await db.bookings.edit(update_data, id=created_booking.id)
     booking = await db.bookings.get_one(id=created_booking.id)
-    assert booking.model_dump(exclude={'id'}) == update_data.model_dump()
+    assert booking.model_dump(exclude={"id"}) == update_data.model_dump()
 
     # delete booking
     await db.bookings.delete(id=created_booking.id)

@@ -13,18 +13,20 @@ async def delete_all_bookings():
         await _db.commit()
 
 
-@pytest.mark.parametrize("room_id, date_from, date_to, status_code", [
-    (1, "2025-08-01", "2025-08-10", 200),
-    (1, "2025-08-02", "2025-08-11", 200),
-    (1, "2025-08-03", "2025-08-12", 200),
-    (1, "2025-08-04", "2025-08-13", 200),
-    (1, "2025-08-05", "2025-08-14", 200),
-    (1, "2025-08-06", "2025-08-15", 404),
-    (1, "2025-08-17", "2025-08-25", 200),
-])
+@pytest.mark.parametrize(
+    "room_id, date_from, date_to, status_code",
+    [
+        (1, "2025-08-01", "2025-08-10", 200),
+        (1, "2025-08-02", "2025-08-11", 200),
+        (1, "2025-08-03", "2025-08-12", 200),
+        (1, "2025-08-04", "2025-08-13", 200),
+        (1, "2025-08-05", "2025-08-14", 200),
+        (1, "2025-08-06", "2025-08-15", 404),
+        (1, "2025-08-17", "2025-08-25", 200),
+    ],
+)
 async def test_add_booking(
-        room_id, date_from, date_to, status_code,
-        db, authenticated_ac
+    room_id, date_from, date_to, status_code, db, authenticated_ac
 ):
     data = {
         "room_id": room_id,
@@ -40,14 +42,22 @@ async def test_add_booking(
         assert response.status_code == status_code
 
 
-@pytest.mark.parametrize("room_id, date_from, date_to, my_bookings_count", [
-    (1, "2025-08-01", "2025-08-10", 1),
-    (1, "2025-08-02", "2025-08-11", 2),
-    (1, "2025-08-03", "2025-08-12", 3),
-])
+@pytest.mark.parametrize(
+    "room_id, date_from, date_to, my_bookings_count",
+    [
+        (1, "2025-08-01", "2025-08-10", 1),
+        (1, "2025-08-02", "2025-08-11", 2),
+        (1, "2025-08-03", "2025-08-12", 3),
+    ],
+)
 async def test_add_and_get_bookings(
-        room_id, date_from, date_to, my_bookings_count,
-        db, authenticated_ac, delete_all_bookings
+    room_id,
+    date_from,
+    date_to,
+    my_bookings_count,
+    db,
+    authenticated_ac,
+    delete_all_bookings,
 ):
     # create booking
     data = {
