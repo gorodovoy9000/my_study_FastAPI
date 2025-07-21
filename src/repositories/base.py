@@ -23,11 +23,7 @@ class BaseRepository(ABC):
 
     async def get_many_filtered(self, *filters, limit=100, offset=0, **filter_by):
         # build query with filters
-        query = (
-            select(self.model)
-            .filter(*filters)
-            .filter_by(**filter_by)
-        )
+        query = select(self.model).filter(*filters).filter_by(**filter_by)
         # pagination
         query = query.limit(limit).offset(offset)
         # execute
@@ -71,11 +67,13 @@ class BaseRepository(ABC):
 
     async def add(self, in_data: BaseModel):
         # build insert statement
+        # fmt: off
         stmt = (
             insert(self.model)
             .values(**in_data.model_dump())
             .returning(self.model)
         )
+        # fmt: on
         # debug stmt print
         # print(stms.compile(engine, compile_kwargs={"literal_binds": True}))
         try:
@@ -99,11 +97,13 @@ class BaseRepository(ABC):
         # only one object allowed
         await self.get_one(**filter_by)
         # build update statement
+        # fmt: off
         stmt = (
             update(self.model)
             .values(**in_data.model_dump(exclude_unset=partial_update))
             .filter_by(**filter_by)
         )
+        # fmt: on
         # execute and check about constrain violations
         try:
             await self.session.execute(stmt)
@@ -119,10 +119,7 @@ class BaseRepository(ABC):
         # only one object allowed
         await self.get_one(**filter_by)
         # build delete statement
-        stmt = (
-            delete(self.model)
-            .filter_by(**filter_by)
-        )
+        stmt = delete(self.model).filter_by(**filter_by)
         # execute and check about constrain violations
         try:
             await self.session.execute(stmt)
