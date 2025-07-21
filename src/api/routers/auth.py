@@ -2,7 +2,11 @@ from fastapi import APIRouter, HTTPException, Response
 from passlib.context import CryptContext
 from starlette import status
 
-from src.exceptions import NotFoundException, UniqueValueException, InvalidPasswordException
+from src.exceptions import (
+    NotFoundException,
+    UniqueValueException,
+    InvalidPasswordException,
+)
 from src.api.dependencies import DBDep, UserIdDep
 from src.schemas.users import UsersAddSchema, UsersLoginSchema, UsersRegisterSchema
 from src.service.auth import AuthService
@@ -22,7 +26,10 @@ async def login_user(db: DBDep, schema_received: UsersLoginSchema, response: Res
         AuthService().verify_password(schema_received.password, user.hashed_password)
     # unauthorized error
     except (NotFoundException, InvalidPasswordException):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Email or password invalid!")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Email or password invalid!",
+        )
     # set access token
     access_token = AuthService().create_access_token({"user_id": user.id})
     response.set_cookie("access_token", access_token)

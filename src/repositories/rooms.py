@@ -23,12 +23,15 @@ class RoomsRepository(BaseRepository):
             *args,
             main_column_name="room_id",
             target_column_name="facility_id",
-            **kwargs
+            **kwargs,
         )
 
-    async def get_vacant_rooms_by_hotel(self, date_from: date, date_to: date, hotel_id: int):
-
-        vacant_rooms_ids = query_vacant_rooms(date_from=date_from, date_to=date_to, hotel_id=hotel_id)
+    async def get_vacant_rooms_by_hotel(
+        self, date_from: date, date_to: date, hotel_id: int
+    ):
+        vacant_rooms_ids = query_vacant_rooms(
+            date_from=date_from, date_to=date_to, hotel_id=hotel_id
+        )
         # todo build general abstract select for relations in base repo
         query = (
             select(self.model)

@@ -3,14 +3,20 @@ from fastapi_cache.decorator import cache
 
 from src.api.dependencies import DBDep, PaginationDep
 from src.api.exceptions import only_one_error_handler
-from src.schemas.facilities import FacilitiesSchema, FacilitiesPatchSchema, FacilitiesWriteSchema
+from src.schemas.facilities import (
+    FacilitiesSchema,
+    FacilitiesPatchSchema,
+    FacilitiesWriteSchema,
+)
 
 router = APIRouter(prefix="/facilities", tags=["facilities"])
 
 
 @router.get("")
 @cache(expire=5)
-async def get_facilities(db: DBDep, pagination: PaginationDep) -> list[FacilitiesSchema]:
+async def get_facilities(
+    db: DBDep, pagination: PaginationDep
+) -> list[FacilitiesSchema]:
     data = await db.facilities.get_many_filtered(
         limit=pagination.limit,
         offset=pagination.offset,
@@ -43,7 +49,9 @@ async def delete_facility(db: DBDep, facility_id: int):
 
 @router.put("/{facility_id}", status_code=204)
 @only_one_error_handler
-async def update_facility(db: DBDep, facility_id: int, schema_update: FacilitiesWriteSchema):
+async def update_facility(
+    db: DBDep, facility_id: int, schema_update: FacilitiesWriteSchema
+):
     await db.facilities.edit(schema_update, id=facility_id)
     await db.commit()
     return {"status": "Ok"}
@@ -51,7 +59,9 @@ async def update_facility(db: DBDep, facility_id: int, schema_update: Facilities
 
 @router.patch("/{facility_id}", status_code=204)
 @only_one_error_handler
-async def partial_update_facility(db: DBDep, facility_id: int, schema_patch: FacilitiesPatchSchema):
+async def partial_update_facility(
+    db: DBDep, facility_id: int, schema_patch: FacilitiesPatchSchema
+):
     await db.facilities.edit(schema_patch, partial_update=True, id=facility_id)
     await db.commit()
     return {"status": "Ok"}

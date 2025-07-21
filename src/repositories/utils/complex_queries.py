@@ -7,9 +7,9 @@ from src.models.rooms import RoomsOrm
 
 
 def query_vacant_rooms(
-        date_from: date,
-        date_to: date,
-        hotel_id: int = None,
+    date_from: date,
+    date_to: date,
+    hotel_id: int = None,
 ):
     cte_rooms_booked_result = (
         # FROM Bookings select rooms ids with counter
@@ -29,19 +29,21 @@ def query_vacant_rooms(
         # FROM Rooms select rooms ids with computed remaining rooms counter
         select(
             RoomsOrm.id.label("room_id"),
-            (RoomsOrm.quantity - func.coalesce(cte_rooms_booked_result.c.rooms_booked, 0)).label("rooms_remaining")
+            (
+                RoomsOrm.quantity
+                - func.coalesce(cte_rooms_booked_result.c.rooms_booked, 0)
+            ).label("rooms_remaining"),
         )
         .select_from(RoomsOrm)
         # join rooms with some bookings and totally free rooms
-        .outerjoin(cte_rooms_booked_result, RoomsOrm.id == cte_rooms_booked_result.c.room_id)
+        .outerjoin(
+            cte_rooms_booked_result, RoomsOrm.id == cte_rooms_booked_result.c.room_id
+        )
         .cte("rooms_remaining_result")
     )
 
     # rooms filter subquery
-    query_rooms_ids = (
-        select(RoomsOrm.id)
-        .select_from(RoomsOrm)
-    )
+    query_rooms_ids = select(RoomsOrm.id).select_from(RoomsOrm)
     # filter by hotel id if presented
     if hotel_id:
         query_rooms_ids = query_rooms_ids.filter_by(hotel_id=hotel_id)
@@ -56,7 +58,7 @@ def query_vacant_rooms(
         # exclude fully booked rooms and filter ids by additional subquery
         .filter(
             cte_rooms_remaining_result.c.rooms_remaining > 0,
-            cte_rooms_remaining_result.c.room_id.in_(query_rooms_ids)
+            cte_rooms_remaining_result.c.room_id.in_(query_rooms_ids),
         )
     )
 

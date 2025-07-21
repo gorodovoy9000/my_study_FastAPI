@@ -7,6 +7,7 @@ from pydantic import BaseModel, computed_field, field_validator
 from src.config import settings
 from src.utils.file_manager import LocalFileManager
 
+
 # filename format "timestamp--version--filename"
 class Filename(BaseModel):
     original_filename: str
@@ -25,10 +26,12 @@ class Filename(BaseModel):
         pattern = re.compile(r"[a-z0-9_]+(?:\.[a-z0-9]+)?")
         match = re.fullmatch(pattern, filename)
         if not match:
-            msg = (f"Invalid filename: {filename}\n"
-                   f"Only allowed lower latin letters(a-z), digits, underscore "
-                   f"and optional extension after dot(.)\n"
-                   f"Examples: file1.txt, some_image.jpg some_file etc")
+            msg = (
+                f"Invalid filename: {filename}\n"
+                f"Only allowed lower latin letters(a-z), digits, underscore "
+                f"and optional extension after dot(.)\n"
+                f"Examples: file1.txt, some_image.jpg some_file etc"
+            )
             raise ValueError(msg)
         return filename
 
@@ -41,10 +44,12 @@ class MediaFilename(Filename):
         pattern = re.compile(r"[a-z0-9_]+\.[a-z0-9]+")
         match = re.fullmatch(pattern, filename)
         if not match:
-            msg = (f"Invalid media filename: {filename}\n"
-                   f"Only allowed lower latin letters(a-z), digits, underscore "
-                   f"and extension after dot(.)\n"
-                   f"Examples: image1.png, some_image.jpg etc")
+            msg = (
+                f"Invalid media filename: {filename}\n"
+                f"Only allowed lower latin letters(a-z), digits, underscore "
+                f"and extension after dot(.)\n"
+                f"Examples: image1.png, some_image.jpg etc"
+            )
             raise ValueError(msg)
         return filename
 
@@ -62,7 +67,7 @@ class FileStorageService:
         # build storage filename
         filename_obj = self.FilenameSchema(
             original_filename=original_filename.strip().lower(),
-            timestamp=datetime.now(timezone.utc).timestamp()
+            timestamp=datetime.now(timezone.utc).timestamp(),
         )
         # write file via manager
         self.manager.write(filename_obj.storage_filename, data)

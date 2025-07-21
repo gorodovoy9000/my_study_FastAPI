@@ -27,13 +27,13 @@ class HotelsRepository(BaseRepository):
     #     return [HotelsSchema.model_validate(mo, from_attributes=True) for mo in model_objects]
 
     async def get_hotels_with_vacant_rooms(
-            self,
-            date_from: date,
-            date_to: date,
-            location: str,
-            title: str,
-            limit: int,
-            offset: int,
+        self,
+        date_from: date,
+        date_to: date,
+        location: str,
+        title: str,
+        limit: int,
+        offset: int,
     ):
         vacant_rooms_ids = query_vacant_rooms(date_from=date_from, date_to=date_to)
 
@@ -44,7 +44,9 @@ class HotelsRepository(BaseRepository):
         )
 
         # filtering
-        filters = [HotelsOrm.id.in_(hotels_ids_by_vacant_rooms),]
+        filters = [
+            HotelsOrm.id.in_(hotels_ids_by_vacant_rooms),
+        ]
         if title:
             filters.append(HotelsOrm.title.icontains(title.strip().lower()))
         if location:

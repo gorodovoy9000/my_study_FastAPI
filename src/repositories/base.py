@@ -8,8 +8,11 @@ from sqlalchemy.exc import IntegrityError, MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.exceptions import (
-    ForeignKeyException, ManyFoundException, NullValueException,
-    NotFoundException, UniqueValueException,
+    ForeignKeyException,
+    ManyFoundException,
+    NullValueException,
+    NotFoundException,
+    UniqueValueException,
 )
 from src.repositories.mappers.base import BaseDataMapper
 
@@ -93,7 +96,7 @@ class BaseRepository(ABC):
         stmt = insert(self.model).values([d.model_dump() for d in bulk_data])
         await self.session.execute(stmt)
 
-    async def edit(self, in_data: BaseModel, partial_update = False, **filter_by) -> None:
+    async def edit(self, in_data: BaseModel, partial_update=False, **filter_by) -> None:
         # only one object allowed
         await self.get_one(**filter_by)
         # build update statement
@@ -131,7 +134,9 @@ class BaseRepository(ABC):
 class BaseM2MRepository(ABC):
     table: Table
 
-    def __init__(self, session: AsyncSession, main_column_name: str, target_column_name: str):
+    def __init__(
+        self, session: AsyncSession, main_column_name: str, target_column_name: str
+    ):
         self.session = session
         self.main_column_name = main_column_name
         self.main_column = getattr(self.table.c, self.main_column_name)
@@ -145,7 +150,8 @@ class BaseM2MRepository(ABC):
             {
                 self.main_column_name: main_obj_id,
                 self.target_column_name: o_id,
-            } for o_id in target_objs_ids
+            }
+            for o_id in target_objs_ids
         ]
         # build and execute statement
         stmt = insert(self.table).values(rows_to_add)

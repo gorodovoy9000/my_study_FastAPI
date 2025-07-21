@@ -12,6 +12,7 @@ from src.api.routers.images import router as images_router
 from src.api.routers.hotels import router as hotels_router
 from src.api.routers.rooms import router as hotel_rooms_router
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # before app start
@@ -24,9 +25,11 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
+
 
 app.include_router(auth_router)
 app.include_router(images_router)

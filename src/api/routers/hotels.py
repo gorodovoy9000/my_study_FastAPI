@@ -14,12 +14,16 @@ router = APIRouter(prefix="/hotels", tags=["hotels"])
 @router.get("")
 @cache(expire=5)
 async def get_hotels(
-        db: DBDep,
-        pagination: PaginationDep,
-        date_from: date,
-        date_to: date,
-        title: Annotated[str | None, Query(description="Filter by substring hotel title")] = None,
-        location: Annotated[str | None, Query(description="Filter by substring hotel location")] = None,
+    db: DBDep,
+    pagination: PaginationDep,
+    date_from: date,
+    date_to: date,
+    title: Annotated[
+        str | None, Query(description="Filter by substring hotel title")
+    ] = None,
+    location: Annotated[
+        str | None, Query(description="Filter by substring hotel location")
+    ] = None,
 ) -> list[HotelsSchema]:
     data = await db.hotels.get_hotels_with_vacant_rooms(
         date_from=date_from,
@@ -65,7 +69,9 @@ async def update_hotel(db: DBDep, hotel_id: int, schema_update: HotelsWriteSchem
 
 @router.patch("/{hotel_id}", status_code=204)
 @only_one_error_handler
-async def partial_update_hotel(db: DBDep, hotel_id: int, schema_patch: HotelsPatchSchema):
+async def partial_update_hotel(
+    db: DBDep, hotel_id: int, schema_patch: HotelsPatchSchema
+):
     await db.hotels.edit(schema_patch, partial_update=True, id=hotel_id)
     await db.commit()
     return {"status": "Ok"}

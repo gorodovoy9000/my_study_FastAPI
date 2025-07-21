@@ -37,6 +37,7 @@ class PaginationParams(BaseModel):
     def offset(self) -> int:
         return self.per_page * (self.page - 1)
 
+
 PaginationDep = Annotated[PaginationParams, Depends()]
 
 
@@ -45,13 +46,17 @@ def get_valid_token(request: Request) -> dict:
     encoded_token = request.cookies.get("access_token")
     # token not found
     if not encoded_token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token not provided")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Token not provided"
+        )
     # verify token
     try:
         decoded_data = AuthService().decode_access_token(encoded_token)
     # token invalid
     except InvalidTokenException:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token invalid!")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Token invalid!"
+        )
     return decoded_data
 
 

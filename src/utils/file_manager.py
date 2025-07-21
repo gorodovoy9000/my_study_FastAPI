@@ -24,5 +24,5 @@ class LocalFileManager:
             raise FileAlreadyExistsException
         # write file
         # for now just read in memory and write
-        with abs_filepath.open('wb') as f:
+        with abs_filepath.open("wb") as f:
             f.write(data.read())

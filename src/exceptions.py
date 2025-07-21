@@ -1,5 +1,6 @@
 import re
 
+
 # db exceptions
 def parse_detail(err_text: str) -> str:
     match = re.search(r"\nDETAIL:(.*)\n", err_text)
@@ -37,9 +38,11 @@ class InvalidPasswordException(Exception):
 class InvalidTokenException(Exception):
     pass
 
+
 # files exceptions
 class FileAlreadyExistsException(Exception):
     pass
+
 
 class FileNotFoundException(Exception):
     pass

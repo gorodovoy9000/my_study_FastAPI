@@ -4,8 +4,11 @@ from fastapi import HTTPException
 from starlette import status
 
 from src.exceptions import (
-    ForeignKeyException, ManyFoundException, NullValueException,
-    NotFoundException, UniqueValueException,
+    ForeignKeyException,
+    ManyFoundException,
+    NullValueException,
+    NotFoundException,
+    UniqueValueException,
 )
 
 
@@ -24,6 +27,7 @@ def only_one_error_handler(func):
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail="Multiple objects found, only one allowed",
             )
+
     return wrapper
 
 
@@ -47,4 +51,5 @@ def constrain_violation_error_handler(func):
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail=str(err),
             )
+
     return wrapper

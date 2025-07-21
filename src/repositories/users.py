@@ -13,4 +13,6 @@ class UsersRepository(BaseRepository):
     async def get_user_with_hashed_password(self, email: EmailStr):
         # override return mapper
         model_object = await self.get_one(orm_output=True, email=email)
-        return UserWithHashedPasswordSchema.model_validate(model_object, from_attributes=True)
+        return UserWithHashedPasswordSchema.model_validate(
+            model_object, from_attributes=True
+        )

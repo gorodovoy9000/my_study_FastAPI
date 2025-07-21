@@ -34,17 +34,21 @@ def resize_image(original_filename: str, rel_path: str):
     # Iterate over sizes
     for size in sizes:
         # Resize image
-        img_resized = img.resize((size, int(img.height * (size / img.width))), Image.Resampling.LANCZOS)
+        img_resized = img.resize(
+            (size, int(img.height * (size / img.width))), Image.Resampling.LANCZOS
+        )
 
         # Build image new name
         new_filename = f"{name}_{size}px{ext}"
         new_filename_obj = file_service.FilenameSchema(
             original_filename=new_filename,
-            timestamp=datetime.now(timezone.utc).timestamp()
+            timestamp=datetime.now(timezone.utc).timestamp(),
         )
 
         # New file absolute path
-        new_abs_path = file_service.get_abs_filepath(new_filename_obj.storage_filename, not_found_err=False)
+        new_abs_path = file_service.get_abs_filepath(
+            new_filename_obj.storage_filename, not_found_err=False
+        )
 
         # Save image
         img_resized.save(new_abs_path)
