@@ -62,7 +62,7 @@ async def test_already_registered(ac):
             "password": "red_saber",
         },
     )
-    assert response.status_code == 422
+    assert response.status_code == 409
 
 
 async def test_invalid_password(ac):

@@ -45,10 +45,10 @@ class BaseRepository(ABC):
         try:
             result = await self.session.execute(query)
             model_object = result.scalars().one()
-        except NoResultFound as err:
-            raise NotFoundException(err)
-        except MultipleResultsFound as err:
-            raise ManyFoundException(err)
+        except NoResultFound:
+            raise NotFoundException
+        except MultipleResultsFound:
+            raise ManyFoundException
         if orm_output:
             return model_object
         return self.mapper.map_to_domain_entity(model_object)
@@ -60,10 +60,10 @@ class BaseRepository(ABC):
         try:
             result = await self.session.execute(query)
             model_object = result.scalars().one_or_none()
-        except NoResultFound as err:
-            raise NotFoundException(err)
-        except MultipleResultsFound as err:
-            raise ManyFoundException(err)
+        except NoResultFound:
+            raise NotFoundException
+        except MultipleResultsFound:
+            raise ManyFoundException
         # return None or schema
         if not model_object:
             return None
@@ -86,11 +86,11 @@ class BaseRepository(ABC):
         # execute and check about constrain violations
         except IntegrityError as err:
             if isinstance(err.__context__, ForeignKeyViolation):
-                raise ForeignKeyException(err)
+                raise ForeignKeyException
             elif isinstance(err.__context__, NotNullViolation):
-                raise NullValueException(err)
+                raise NullValueException
             elif isinstance(err.__context__, UniqueViolation):
-                raise UniqueValueException(err)
+                raise UniqueValueException
         return self.mapper.map_to_domain_entity(model_object)
 
     async def add_bulk(self, bulk_data: Sequence[BaseModel]):
@@ -113,11 +113,11 @@ class BaseRepository(ABC):
             await self.session.execute(stmt)
         except IntegrityError as err:
             if isinstance(err.__context__, ForeignKeyViolation):
-                raise ForeignKeyException(err)
+                raise ForeignKeyException
             elif isinstance(err.__context__, NotNullViolation):
-                raise NullValueException(err)
+                raise NullValueException
             elif isinstance(err.__context__, UniqueViolation):
-                raise UniqueValueException(err)
+                raise UniqueValueException
 
     async def delete(self, **filter_by) -> None:
         # only one object allowed
@@ -129,7 +129,7 @@ class BaseRepository(ABC):
             await self.session.execute(stmt)
         except IntegrityError as err:
             if isinstance(err.__context__, ForeignKeyViolation):
-                raise ForeignKeyException(err)
+                raise ForeignKeyException
 
 
 class BaseM2MRepository(ABC):
@@ -156,7 +156,11 @@ class BaseM2MRepository(ABC):
         ]
         # build and execute statement
         stmt = insert(self.table).values(rows_to_add)
-        await self.session.execute(stmt)
+        try:
+            await self.session.execute(stmt)
+        except IntegrityError as err:
+            if isinstance(err.__context__, ForeignKeyViolation):
+                raise ForeignKeyException
 
     async def delete(self, main_obj_id: int, target_objs_ids: list[int]):
         """Delete target objects by their ids only linked to the main object"""

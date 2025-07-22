@@ -1,53 +1,47 @@
-import re
+# base exception
+class AppBaseException(Exception):
+    detail = "Unexpected error"
 
 
 # db exceptions
-def parse_detail(err_text: str) -> str:
-    match = re.search(r"\nDETAIL:(.*)\n", err_text)
-    return match.group(1).strip()
+class ManyFoundException(AppBaseException):
+    detail = "Many objects were found"
 
 
-class ManyFoundException(Exception):
-    pass
+class NotFoundException(AppBaseException):
+    detail = "Objects are not found"
 
 
-class NotFoundException(Exception):
-    pass
+class NullValueException(AppBaseException):
+    detail = "Null value found in not nullable column"
 
 
-class NullValueException(Exception):
-    def __str__(self):
-        return parse_detail(str(self.__context__))
+class ForeignKeyException(AppBaseException):
+    detail = "Foreign key constraint violated"
 
 
-class ForeignKeyException(Exception):
-    def __str__(self):
-        return parse_detail(str(self.__context__))
-
-
-class UniqueValueException(Exception):
-    def __str__(self):
-        return parse_detail(str(self.__context__))
+class UniqueValueException(AppBaseException):
+    detail = "Unique constraint violated"
 
 
 # auth exceptions
-class InvalidPasswordException(Exception):
-    pass
+class InvalidPasswordException(AppBaseException):
+    detail = "Invalid password"
 
 
-class InvalidTokenException(Exception):
-    pass
+class InvalidTokenException(AppBaseException):
+    detail = "Invalid token"
 
 
 # files exceptions
-class FileAlreadyExistsException(Exception):
-    pass
+class FileAlreadyExistsException(AppBaseException):
+    detail = "File already exists"
 
 
-class FileNotFoundException(Exception):
-    pass
+class FileNotFoundException(AppBaseException):
+    detail = "File not found"
 
 
 # business logic exceptions
-class NoVacantRoomsException(Exception):
-    pass
+class NoVacantRoomsException(AppBaseException):
+    detail = "No vacant rooms remain"

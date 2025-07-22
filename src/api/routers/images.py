@@ -14,10 +14,9 @@ def get_image(filepath: str):
         abs_filepath = MediaFileStorageService().get_abs_filepath(filepath)
         return FileResponse(abs_filepath)
     except FileNotFoundException:
-        msg = "File not found"
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=msg,
+            detail="File not found",
         )
 
 

@@ -57,7 +57,7 @@ async def register_user(db: DBDep, schema_received: UsersRegisterSchema):
     # user already exist error
     except UniqueValueException:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_409_CONFLICT,
             detail="User with this email already exists",
         )
     return {"status": "Ok"}

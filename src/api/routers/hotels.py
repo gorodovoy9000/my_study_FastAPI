@@ -1,11 +1,11 @@
 from datetime import date
 from typing import Annotated
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, HTTPException, status
 from fastapi_cache.decorator import cache
 
+from src.exceptions import ForeignKeyException, NotFoundException
 from src.api.dependencies import DBDep, PaginationDep
-from src.api.exceptions import only_one_error_handler
 from src.schemas.hotels import HotelsSchema, HotelsPatchSchema, HotelsWriteSchema
 
 router = APIRouter(prefix="/hotels", tags=["hotels"])
@@ -25,6 +25,9 @@ async def get_hotels(
         str | None, Query(description="Filter by substring hotel location")
     ] = None,
 ) -> list[HotelsSchema]:
+    if date_from >= date_to:
+        msg = "DateTo must be lesser than DateFrom"
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=msg)
     data = await db.hotels.get_hotels_with_vacant_rooms(
         date_from=date_from,
         date_to=date_to,
@@ -37,9 +40,11 @@ async def get_hotels(
 
 
 @router.get("/{hotel_id}")
-@only_one_error_handler
 async def get_hotel(db: DBDep, hotel_id: int) -> HotelsSchema:
-    data = await db.hotels.get_one(id=hotel_id)
+    try:
+        data = await db.hotels.get_one(id=hotel_id)
+    except NotFoundException:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hotel not found")
     return data
 
 
@@ -52,26 +57,35 @@ async def create_hotel(db: DBDep, schema_create: HotelsWriteSchema):
 
 
 @router.delete("/{hotel_id}", status_code=204)
-@only_one_error_handler
 async def delete_hotel(db: DBDep, hotel_id: int):
-    await db.hotels.delete(id=hotel_id)
+    try:
+        await db.hotels.delete(id=hotel_id)
+    except NotFoundException:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hotel not found")
+    except ForeignKeyException:
+        msg = "Cannot delete hotel that has rooms"
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=msg)
     await db.commit()
     return {"status": "Ok"}
 
 
 @router.put("/{hotel_id}", status_code=204)
-@only_one_error_handler
 async def update_hotel(db: DBDep, hotel_id: int, schema_update: HotelsWriteSchema):
-    await db.hotels.edit(schema_update, id=hotel_id)
+    try:
+        await db.hotels.edit(schema_update, id=hotel_id)
+    except NotFoundException:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hotel not found")
     await db.commit()
     return {"status": "Ok"}
 
 
 @router.patch("/{hotel_id}", status_code=204)
-@only_one_error_handler
 async def partial_update_hotel(
     db: DBDep, hotel_id: int, schema_patch: HotelsPatchSchema
 ):
-    await db.hotels.edit(schema_patch, partial_update=True, id=hotel_id)
+    try:
+        await db.hotels.edit(schema_patch, partial_update=True, id=hotel_id)
+    except NotFoundException:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hotel not found")
     await db.commit()
     return {"status": "Ok"}

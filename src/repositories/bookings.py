@@ -44,5 +44,4 @@ class BookingsRepository(BaseRepository):
         # validate there are some vacate rooms
         if room_vacant_quantity > 0:
             return await self.add(create_booking_data)
-        msg = "No vacant rooms remains"
-        raise NoVacantRoomsException(msg)
+        raise NoVacantRoomsException
