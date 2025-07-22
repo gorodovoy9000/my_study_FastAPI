@@ -91,6 +91,8 @@ class BaseRepository(ABC):
                 raise NullValueException from err
             elif isinstance(err.__context__, UniqueViolation):
                 raise UniqueValueException from err
+            else:
+                raise err
         return self.mapper.map_to_domain_entity(model_object)
 
     async def add_bulk(self, bulk_data: Sequence[BaseModel]):
@@ -118,6 +120,8 @@ class BaseRepository(ABC):
                 raise NullValueException from err
             elif isinstance(err.__context__, UniqueViolation):
                 raise UniqueValueException from err
+            else:
+                raise err
 
     async def delete(self, **filter_by) -> None:
         # only one object allowed
@@ -130,6 +134,8 @@ class BaseRepository(ABC):
         except IntegrityError as err:
             if isinstance(err.__context__, ForeignKeyViolation):
                 raise ForeignKeyException from err
+            else:
+                raise err
 
 
 class BaseM2MRepository(ABC):
@@ -161,6 +167,8 @@ class BaseM2MRepository(ABC):
         except IntegrityError as err:
             if isinstance(err.__context__, ForeignKeyViolation):
                 raise ForeignKeyException from err
+            else:
+                raise err
 
     async def delete(self, main_obj_id: int, target_objs_ids: list[int]):
         """Delete target objects by their ids only linked to the main object"""
