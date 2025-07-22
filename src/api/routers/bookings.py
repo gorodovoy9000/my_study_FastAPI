@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, status
 
 from src.api.dependencies import DBDep, UserIdDep
+from src.api.exceptions import validate_date_to_is_bigger_than_date_from
 from src.exceptions import NotFoundException, NoVacantRoomsException
 from src.schemas.bookings import (
     BookingsRequestSchema,
@@ -28,10 +29,7 @@ async def get_my_bookings(db: DBDep, user_id: UserIdDep) -> list[BookingsSchema]
 async def create_booking(
     db: DBDep, user_id: UserIdDep, request_data: BookingsRequestSchema
 ):
-    # check dates logic
-    if request_data.date_from >= request_data.date_to:
-        msg = "DateTo must be lesser than DateFrom"
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=msg)
+    validate_date_to_is_bigger_than_date_from(date_from=request_data.date_from, date_to=request_data.date_to)
     # get room
     try:
         room = await db.rooms.get_one(id=request_data.room_id)

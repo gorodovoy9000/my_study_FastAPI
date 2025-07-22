@@ -1,7 +1,7 @@
+from datetime import date
 import functools
 
-from fastapi import HTTPException
-from starlette import status
+from fastapi import HTTPException, status
 
 from src.exceptions import (
     ForeignKeyException,
@@ -53,3 +53,9 @@ def only_one_error_handler(func):
 #             )
 #
 #     return wrapper
+
+
+def validate_date_to_is_bigger_than_date_from(date_from: date, date_to: date):
+    if date_from >= date_to:
+        msg = "date_to must be bigger than date_from"
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=msg)

@@ -4,6 +4,7 @@ from fastapi import APIRouter, HTTPException, status
 
 from src.exceptions import NotFoundException, ForeignKeyException
 from src.api.dependencies import DBDep
+from src.api.exceptions import validate_date_to_is_bigger_than_date_from
 from src.schemas.rooms import (
     RoomsRequestPatchSchema,
     RoomsRequestPostSchema,
@@ -23,9 +24,7 @@ async def get_rooms(
     date_from: date,
     date_to: date,
 ) -> list[RoomsRelsSchema]:
-    if date_from >= date_to:
-        msg = "DateTo must be lesser than DateFrom"
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=msg)
+    validate_date_to_is_bigger_than_date_from(date_from=date_from, date_to=date_to)
     data = await db.rooms.get_vacant_rooms_by_hotel(
         hotel_id=hotel_id, date_from=date_from, date_to=date_to
     )
