@@ -1,5 +1,6 @@
 import asyncio
 from datetime import datetime, timezone
+import logging
 import os
 from time import sleep
 
@@ -20,6 +21,7 @@ def test_task():
 
 @celery_app.task
 def resize_image(original_filename: str, rel_path: str):
+    logging.debug(f"Run background task resize_image with {original_filename=} and {rel_path=}")
     file_service = MediaFileStorageService()
 
     sizes = [300, 200, 100]
@@ -52,14 +54,14 @@ def resize_image(original_filename: str, rel_path: str):
 
         # Save image
         img_resized.save(new_abs_path)
-        print(f"Image saved: {new_abs_path}")
+        logging.info(f"Image saved on path {new_abs_path}")
 
 
 async def get_bookings_with_today_checkin_helper():
-    print("Run async check bookings task")
+    logging.debug("Run background task get_bookings_with_today_checkin_helper")
     async with DBManager(session_factory=async_session_maker_null_pool) as db:
         bookings = await db.bookings.get_bookings_with_today_checkin()
-        print(f"{bookings=}")
+        logging.debug(f"Got {bookings=}")
 
 
 @celery_app.task(name="booking_today_checkin")
