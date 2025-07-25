@@ -5,12 +5,56 @@ from jwt.exceptions import DecodeError, InvalidSignatureError, ExpiredSignatureE
 from passlib.context import CryptContext
 
 from src.config import settings
-from src.services.exceptions import InvalidPasswordException, InvalidTokenException
+from src.repositories.exceptions import NotFoundException, UniqueValueException
+from src.schemas.users import UsersAddSchema, UsersLoginSchema, UsersRegisterSchema
 from src.services.base import BaseService
+from src.services.exceptions import (
+    InvalidPasswordException,
+    InvalidTokenException,
+    UserAlreadyExistsException,
+    UserLoginFailedException,
+    UserNotFoundException,
+)
 
 
 class AuthService(BaseService):
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+    async def get_user(self, user_id: int):
+        try:
+            user = await self.db.users.get_one(id=user_id)
+        except NotFoundException as err:
+            raise UserNotFoundException from err
+        return user
+
+    async def register_user(self, data_register: UsersRegisterSchema):
+        # build user to add schema
+        schema_create = UsersAddSchema(
+            username=data_register.username,
+            email=data_register.email,
+            hashed_password=self.hash_password(data_register.password),
+        )
+        # create user and do not return created user data
+        try:
+            await self.db.users.add(schema_create)
+        # user already exist error
+        except UniqueValueException as err:
+            raise UserAlreadyExistsException from err
+        await self.db.commit()
+
+    async def login_user(self, data_login: UsersLoginSchema):
+        # authorize user
+        try:
+            # check user exists
+            user = await self.db.users.get_user_with_hashed_password(email=data_login.email)
+            # verify password
+            self.verify_password(data_login.password, user.hashed_password)
+        # unauthorized error
+        except (NotFoundException, InvalidPasswordException) as err:
+            raise UserLoginFailedException from err
+        # set access token
+        access_token = self.create_access_token({"user_id": user.id})
+        return access_token
 
     def create_access_token(self, data: dict) -> str:
         to_encode = data.copy()

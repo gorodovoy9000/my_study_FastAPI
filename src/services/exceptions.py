@@ -10,6 +10,14 @@ class InvalidTokenException(AppBaseException):
     detail = "Invalid token"
 
 
+class UserAlreadyExistsException(AppBaseException):
+    detail = "User already exists"
+
+
+class UserLoginFailedException(AppBaseException):
+    detail = "User login failed"
+
+
 # business entities exceptions
 class FacilitiesInvalidException(AppBaseException):
     detail = "Facilities invalid"
@@ -33,6 +41,10 @@ class HotelNotFoundException(AppBaseException):
 
 class RoomNotFoundException(AppBaseException):
     detail = "Room not found"
+
+
+class UserNotFoundException(AppBaseException):
+    detail = "User not found"
 
 
 # business logic exceptions
