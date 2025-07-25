@@ -5,7 +5,7 @@ from jwt.exceptions import DecodeError, InvalidSignatureError, ExpiredSignatureE
 from passlib.context import CryptContext
 
 from src.config import settings
-from src.exceptions import InvalidPasswordException, InvalidTokenException
+from src.services.exceptions import InvalidPasswordException, InvalidTokenException
 from src.services.base import BaseService
 
 

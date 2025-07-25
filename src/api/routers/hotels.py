@@ -4,12 +4,12 @@ from typing import Annotated
 from fastapi import APIRouter, Query, HTTPException, status
 from fastapi_cache.decorator import cache
 
-from src.exceptions import ForeignKeyException, NotFoundException, DateFromBiggerOrEqualDateToException
+from src.repositories.exceptions import ForeignKeyException, NotFoundException
 from src.api.dependencies import DBDep, PaginationDep
 from src.api.exceptions import DateFromBiggerOrEqualDateToHTTPException
 from src.schemas.hotels import HotelsSchema, HotelsPatchSchema, HotelsWriteSchema
 from src.services.hotels import HotelService
-
+from src.services.exceptions import DateFromBiggerOrEqualDateToException
 router = APIRouter(prefix="/hotels", tags=["hotels"])
 
 

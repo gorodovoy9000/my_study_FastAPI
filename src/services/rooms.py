@@ -2,14 +2,9 @@ from datetime import date
 
 from sqlalchemy.exc import NoResultFound
 
-from src.exceptions import (
+from src.repositories.exceptions import (
     NotFoundException,
     ForeignKeyException,
-    HotelNotFoundException,
-    RoomHasBookingsException,
-    RoomNotFoundException,
-    FacilitiesInvalidException,
-    validate_date_to_is_bigger_than_date_from,
 )
 from src.schemas.relations import RoomsRelsSchema
 from src.schemas.rooms import (
@@ -20,6 +15,13 @@ from src.schemas.rooms import (
     RoomsRequestPatchSchema,
 )
 from src.services.base import BaseService
+from src.services.exceptions import (
+    HotelNotFoundException,
+    RoomHasBookingsException,
+    RoomNotFoundException,
+    FacilitiesInvalidException,
+)
+from src.services.utils import validate_date_to_is_bigger_than_date_from
 
 
 class RoomService(BaseService):

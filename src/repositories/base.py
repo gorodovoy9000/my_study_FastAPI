@@ -8,7 +8,7 @@ from sqlalchemy.exc import IntegrityError, MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database import Base
-from src.exceptions import (
+from src.repositories.exceptions import (
     ForeignKeyException,
     ManyFoundException,
     NullValueException,

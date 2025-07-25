@@ -4,8 +4,8 @@ from fastapi import Depends, Query, HTTPException, Path, Request, status
 from pydantic import BaseModel, computed_field
 
 from src.database import async_session_maker
-from src.exceptions import InvalidTokenException
 from src.services.auth import AuthService
+from src.services.exceptions import InvalidTokenException
 from src.utils.db_manager import DBManager
 
 

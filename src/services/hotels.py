@@ -1,8 +1,8 @@
 from datetime import date
 
-from src.exceptions import validate_date_to_is_bigger_than_date_from
 from src.schemas.hotels import HotelsWriteSchema, HotelsPatchSchema, HotelsSchema
 from src.services.base import BaseService
+from src.services.utils import validate_date_to_is_bigger_than_date_from
 
 
 class HotelService(BaseService):

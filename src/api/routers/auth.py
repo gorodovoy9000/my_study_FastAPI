@@ -2,14 +2,14 @@ from fastapi import APIRouter, HTTPException, Response
 from passlib.context import CryptContext
 from starlette import status
 
-from src.exceptions import (
+from src.repositories.exceptions import (
     NotFoundException,
     UniqueValueException,
-    InvalidPasswordException,
 )
 from src.api.dependencies import DBDep, UserIdDep
 from src.schemas.users import UsersAddSchema, UsersLoginSchema, UsersRegisterSchema
 from src.services.auth import AuthService
+from src.services.exceptions import InvalidPasswordException
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

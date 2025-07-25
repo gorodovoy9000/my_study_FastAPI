@@ -2,7 +2,7 @@ from datetime import date
 
 from fastapi import APIRouter, HTTPException, status
 
-from src.exceptions import (
+from src.services.exceptions import (
     DateFromBiggerOrEqualDateToException,
     FacilitiesInvalidException,
     HotelNotFoundException,
