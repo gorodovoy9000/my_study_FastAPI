@@ -15,6 +15,10 @@ class FacilitiesInvalidException(AppBaseException):
     detail = "Facilities invalid"
 
 
+class HotelHasRoomsException(AppBaseException):
+    detail = "Hotel has remaining rooms"
+
+
 class RoomHasBookingsException(AppBaseException):
     detail = "Room has remaining bookings"
 

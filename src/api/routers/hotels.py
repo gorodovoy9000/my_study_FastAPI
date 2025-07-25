@@ -4,12 +4,15 @@ from typing import Annotated
 from fastapi import APIRouter, Query, HTTPException, status
 from fastapi_cache.decorator import cache
 
-from src.repositories.exceptions import ForeignKeyException, NotFoundException
 from src.api.dependencies import DBDep, PaginationDep
-from src.api.exceptions import DateFromBiggerOrEqualDateToHTTPException
+from src.api.exceptions import DateFromBiggerOrEqualDateToHTTPException, HotelNotFoundHTTPException
 from src.schemas.hotels import HotelsSchema, HotelsPatchSchema, HotelsWriteSchema
 from src.services.hotels import HotelService
-from src.services.exceptions import DateFromBiggerOrEqualDateToException
+from src.services.exceptions import (
+    DateFromBiggerOrEqualDateToException,
+    HotelNotFoundException,
+    HotelHasRoomsException,
+)
 router = APIRouter(prefix="/hotels", tags=["hotels"])
 
 
@@ -45,8 +48,8 @@ async def get_hotels(
 async def get_hotel(db: DBDep, hotel_id: int) -> HotelsSchema:
     try:
         data = await HotelService(db).get_hotel(hotel_id=hotel_id)
-    except NotFoundException:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hotel not found")
+    except HotelNotFoundException:
+        raise HotelNotFoundHTTPException
     return data
 
 
@@ -60,11 +63,13 @@ async def create_hotel(db: DBDep, schema_create: HotelsWriteSchema):
 async def delete_hotel(db: DBDep, hotel_id: int):
     try:
         await HotelService(db).delete_hotel(hotel_id=hotel_id)
-    except NotFoundException:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hotel not found")
-    except ForeignKeyException:
-        msg = "Cannot delete hotel that has rooms"
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=msg)
+    except HotelNotFoundException:
+        raise HotelNotFoundHTTPException
+    except HotelHasRoomsException:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Cannot delete hotel that has rooms",
+        )
     return {"status": "Ok"}
 
 
@@ -72,8 +77,8 @@ async def delete_hotel(db: DBDep, hotel_id: int):
 async def update_hotel(db: DBDep, hotel_id: int, schema_update: HotelsWriteSchema):
     try:
         await HotelService(db).edit_hotel(hotel_id=hotel_id, data=schema_update)
-    except NotFoundException:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hotel not found")
+    except HotelNotFoundException:
+        raise HotelNotFoundHTTPException
     return {"status": "Ok"}
 
 
@@ -83,6 +88,6 @@ async def patch_hotel(
 ):
     try:
         await HotelService(db).edit_hotel_partially(hotel_id=hotel_id, data=schema_patch)
-    except NotFoundException:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hotel not found")
+    except HotelNotFoundException:
+        raise HotelNotFoundHTTPException
     return {"status": "Ok"}
