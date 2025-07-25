@@ -9,7 +9,7 @@ from src.exceptions import (
 )
 from src.api.dependencies import DBDep, UserIdDep
 from src.schemas.users import UsersAddSchema, UsersLoginSchema, UsersRegisterSchema
-from src.service.auth import AuthService
+from src.services.auth import AuthService
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

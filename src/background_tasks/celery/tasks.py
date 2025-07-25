@@ -8,7 +8,7 @@ from PIL import Image
 
 from src.database import async_session_maker_null_pool
 from src.background_tasks.celery.app import celery_app
-from src.service.file_storage import MediaFileStorageService
+from src.services.file_storage import MediaFileStorageService
 from src.utils.db_manager import DBManager
 
 

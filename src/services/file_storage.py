@@ -5,6 +5,7 @@ import typing
 from pydantic import BaseModel, computed_field, field_validator
 
 from src.config import settings
+from src.services.base import BaseService
 from src.utils.file_manager import LocalFileManager
 
 
@@ -54,7 +55,7 @@ class MediaFilename(Filename):
         return filename
 
 
-class FileStorageService:
+class FileStorageService(BaseService):
     root_path: str
     manager: LocalFileManager
     FilenameSchema: type[Filename]

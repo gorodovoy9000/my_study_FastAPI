@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, UploadFile, status
 from fastapi.responses import FileResponse
 
 from src.exceptions import FileNotFoundException
-from src.service.file_storage import MediaFileStorageService
+from src.services.file_storage import MediaFileStorageService
 from src.background_tasks.celery.tasks import resize_image
 
 router = APIRouter(prefix="/images", tags=["Images"])
