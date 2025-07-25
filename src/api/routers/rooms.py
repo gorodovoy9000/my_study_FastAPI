@@ -2,16 +2,26 @@ from datetime import date
 
 from fastapi import APIRouter, HTTPException, status
 
-from src.exceptions import NotFoundException, ForeignKeyException
+from src.exceptions import (
+    DateFromBiggerOrEqualDateToException,
+    FacilitiesInvalidException,
+    HotelNotFoundException,
+    RoomNotFoundException,
+    RoomHasBookingsException,
+)
+from src.api.exceptions import (
+    DateFromBiggerOrEqualDateToHTTPException,
+    FacilitiesInvalidHTTPException,
+    HotelNotFoundHTTPException,
+    RoomNotFoundHTTPException,
+)
 from src.api.dependencies import DBDep
-from src.api.exceptions import validate_date_to_is_bigger_than_date_from
 from src.schemas.rooms import (
     RoomsRequestPatchSchema,
     RoomsRequestPostSchema,
-    RoomsPatchSchema,
-    RoomsWriteSchema,
 )
 from src.schemas.relations import RoomsRelsSchema
+from src.services.rooms import RoomService
 
 # rooms linked to hotels
 router = APIRouter(prefix="/hotels", tags=["HotelRooms"])
@@ -24,10 +34,12 @@ async def get_rooms(
     date_from: date,
     date_to: date,
 ) -> list[RoomsRelsSchema]:
-    validate_date_to_is_bigger_than_date_from(date_from=date_from, date_to=date_to)
-    data = await db.rooms.get_vacant_rooms_by_hotel(
-        hotel_id=hotel_id, date_from=date_from, date_to=date_to
-    )
+    try:
+        data = await RoomService(db).get_rooms_filtered(
+            hotel_id=hotel_id, date_from=date_from, date_to=date_to
+        )
+    except DateFromBiggerOrEqualDateToException:
+        raise DateFromBiggerOrEqualDateToHTTPException()
     return data
 
 
@@ -35,28 +47,20 @@ async def get_rooms(
 async def get_room(db: DBDep, hotel_id: int, room_id: int) -> RoomsRelsSchema:
     # todo redundant hotel_id, when we have room_id which is primary_key
     try:
-        data = await db.rooms.get_one_with_rels(id=room_id)
-    except NotFoundException:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
+        data = await RoomService(db).get_room(room_id=room_id)
+    except RoomNotFoundException:
+        raise RoomNotFoundHTTPException
     return data
 
 
 @router.post("/{hotel_id/rooms", status_code=201)
-async def create_room(db: DBDep, hotel_id: int, schema_request: RoomsRequestPostSchema):
-    # create room
-    schema_create = RoomsWriteSchema(**schema_request.model_dump())
+async def create_room(db: DBDep, hotel_id: int, request_data: RoomsRequestPostSchema):
     try:
-        data = await db.rooms.add(schema_create)
-    except ForeignKeyException:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hotel not found")
-    # add facilities to room by their ids
-    if schema_request.facilities_ids:
-        try:
-            await db.rooms.rooms_facilities_m2m.add(data.id, schema_request.facilities_ids)
-        except ForeignKeyException:
-            msg = "Some facilities are not found."
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=msg)
-    await db.commit()
+        data = await RoomService(db).add_room(request_data=request_data)
+    except HotelNotFoundException:
+        raise HotelNotFoundHTTPException
+    except FacilitiesInvalidException:
+        raise FacilitiesInvalidHTTPException
     return {"status": "Ok", "data": data}
 
 
@@ -64,65 +68,42 @@ async def create_room(db: DBDep, hotel_id: int, schema_request: RoomsRequestPost
 async def delete_room(db: DBDep, hotel_id: int, room_id: int):
     # todo redundant hotel_id, when we have room_id which is primary_key
     try:
-        await db.rooms.delete(id=room_id)
-    except NotFoundException:
-        msg = "Room not found"
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=msg)
-    except ForeignKeyException:
+        await RoomService(db).delete_room(room_id=room_id)
+    except RoomNotFoundException:
+        raise RoomNotFoundHTTPException
+    except RoomHasBookingsException:
         msg = "Cannot delete room that has bookings"
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=msg)
-    await db.commit()
     return {"status": "Ok"}
 
 
 @router.put("/{hotel_id}rooms/{room_id}", status_code=204)
 async def update_room(
-    db: DBDep, hotel_id: int, room_id: int, schema_request: RoomsRequestPostSchema
+    db: DBDep, hotel_id: int, room_id: int, request_data: RoomsRequestPostSchema
 ):
     # todo redundant hotel_id, when we have room_id which is primary_key
-    schema_update = RoomsWriteSchema(**schema_request.model_dump())
     try:
-        await db.rooms.edit(schema_update, id=room_id)
-    except NotFoundException:
-        msg = "Room not found"
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=msg)
-    except ForeignKeyException:
-        msg = "Hotel not found"
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=msg)
-    # change room facilities
-    if schema_request.facilities_ids is not None:
-        try:
-            await db.rooms.rooms_facilities_m2m.edit(room_id, schema_request.facilities_ids)
-        except ForeignKeyException:
-            msg = "Some facilities are not found."
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=msg)
-    await db.commit()
+        await RoomService(db).edit_room(room_id=room_id, request_data=request_data)
+    except RoomNotFoundException:
+        raise RoomNotFoundHTTPException
+    except HotelNotFoundHTTPException:
+        raise HotelNotFoundHTTPException
+    except FacilitiesInvalidHTTPException:
+        raise FacilitiesInvalidHTTPException
     return {"status": "Ok"}
 
 
 @router.patch("/{hotel_id}rooms/{room_id}", status_code=204)
 async def partial_update_room(
-    db: DBDep, hotel_id: int, room_id: int, schema_request: RoomsRequestPatchSchema
+    db: DBDep, hotel_id: int, room_id: int, request_data: RoomsRequestPatchSchema
 ):
     # todo redundant hotel_id, when we have room_id which is primary_key
-    # partially update room
-    data_patch = schema_request.model_dump(exclude_unset=True)
-    if data_patch:
-        schema_patch = RoomsPatchSchema(**data_patch)
-        try:
-            await db.rooms.edit(schema_patch, partial_update=True, id=room_id)
-        except NotFoundException:
-            msg = "Room not found"
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=msg)
-        except ForeignKeyException:
-            msg = "Hotel not found"
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=msg)
-    # change room facilities
-    if schema_request.facilities_ids is not None:
-        try:
-            await db.rooms.rooms_facilities_m2m.edit(room_id, schema_request.facilities_ids)
-        except ForeignKeyException:
-            msg = "Some facilities are not found."
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=msg)
-    await db.commit()
+    try:
+        await RoomService(db).edit_room_partially(room_id=room_id, request_data=request_data)
+    except RoomNotFoundException:
+        raise RoomNotFoundHTTPException
+    except HotelNotFoundHTTPException:
+        raise HotelNotFoundHTTPException
+    except FacilitiesInvalidHTTPException:
+        raise FacilitiesInvalidHTTPException
     return {"status": "Ok"}

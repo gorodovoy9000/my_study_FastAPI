@@ -45,3 +45,20 @@ class AppBaseHTTPException(HTTPException):
 class DateFromBiggerOrEqualDateToHTTPException(AppBaseHTTPException):
     status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
     detail = "date_to must be bigger than date_from"
+
+
+class FacilitiesInvalidHTTPException(AppBaseHTTPException):
+    status_code = status.HTTP_409_CONFLICT
+    detail = "Facilities invalid"
+
+
+class NotFoundHTTPException(AppBaseHTTPException):
+    status_code: status.HTTP_404_NOT_FOUND
+
+
+class HotelNotFoundHTTPException(NotFoundHTTPException):
+    detail = "Hotel not found"
+
+
+class RoomNotFoundHTTPException(NotFoundHTTPException):
+    detail = "Room not found"

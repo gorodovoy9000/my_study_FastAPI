@@ -45,6 +45,24 @@ class FileNotFoundException(AppBaseException):
     detail = "File not found"
 
 
+# business entities exceptions
+class FacilitiesInvalidException(AppBaseException):
+    detail = "Facilities invalid"
+
+
+class RoomHasBookingsException(AppBaseException):
+    detail = "Room has remaining bookings"
+
+
+class HotelNotFoundException(NotFoundException):
+    detail = "Hotel not found"
+
+
+class RoomNotFoundException(NotFoundException):
+    detail = "Room not found"
+
+
+
 # business logic exceptions
 class NoVacantRoomsException(AppBaseException):
     detail = "No vacant rooms remain"

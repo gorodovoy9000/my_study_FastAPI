@@ -1,8 +1,10 @@
 from datetime import date
 
 from sqlalchemy import select
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import selectinload
 
+from src.exceptions import NotFoundException
 from src.models.rooms import RoomsOrm
 from src.repositories.base import BaseRepository, BaseM2MRepository
 from src.repositories.mappers.mappers import RoomsDataMapper, RoomsRelsDataMapper
@@ -53,7 +55,10 @@ class RoomsRepository(BaseRepository):
         )
         # execute
         result = await self.session.execute(query)
-        model_object = result.scalars().one()
+        try:
+            model_object = result.scalar_one()
+        except NoResultFound as err:
+            raise NotFoundException from err
         return self.mapper_rels.map_to_domain_entity(model_object)
 
 
