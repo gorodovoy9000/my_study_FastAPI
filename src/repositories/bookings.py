@@ -2,11 +2,11 @@ from datetime import date
 
 from sqlalchemy import func, select
 
-from src.exceptions import NoVacantRoomsException
 from src.models.bookings import BookingsOrm
 from src.models.rooms import RoomsOrm
 from src.schemas.bookings import BookingsWriteSchema
 from src.repositories.base import BaseRepository
+from src.repositories.exceptions import RoomQuantityZeroOnDateIntervalException
 from src.repositories.mappers.mappers import BookingsDataMapper
 
 
@@ -44,4 +44,4 @@ class BookingsRepository(BaseRepository):
         # validate there are some vacate rooms
         if room_vacant_quantity > 0:
             return await self.add(create_booking_data)
-        raise NoVacantRoomsException
+        raise RoomQuantityZeroOnDateIntervalException
