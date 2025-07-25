@@ -2,7 +2,9 @@ from fastapi import APIRouter
 from fastapi_cache.decorator import cache
 
 from src.api.dependencies import DBDep, PaginationDep
-from src.api.exceptions import only_one_error_handler
+from src.api.exceptions import FacilityNotFoundHTTPException
+from src.services.facilities import FacilityService
+from src.services.exceptions import FacilityNotFoundException
 from src.schemas.facilities import (
     FacilitiesSchema,
     FacilitiesPatchSchema,
@@ -14,10 +16,8 @@ router = APIRouter(prefix="/facilities", tags=["facilities"])
 
 @router.get("")
 @cache(expire=5)
-async def get_facilities(
-    db: DBDep, pagination: PaginationDep
-) -> list[FacilitiesSchema]:
-    data = await db.facilities.get_many_filtered(
+async def get_facilities(db: DBDep, pagination: PaginationDep) -> list[FacilitiesSchema]:
+    data = await FacilityService(db).get_facilities_all(
         limit=pagination.limit,
         offset=pagination.offset,
     )
@@ -25,43 +25,47 @@ async def get_facilities(
 
 
 @router.get("/{facility_id}")
-@only_one_error_handler
 async def get_facility(db: DBDep, facility_id: int) -> FacilitiesSchema:
-    data = await db.facilities.get_one(id=facility_id)
+    try:
+        data = await FacilityService(db).get_facility(facility_id=facility_id)
+    except FacilityNotFoundException:
+        raise FacilityNotFoundHTTPException
     return data
 
 
 @router.post("", status_code=201)
-async def create_facility(db: DBDep, schema_create: FacilitiesWriteSchema):
-    data = await db.facilities.add(schema_create)
-    # transaction commit MUST stay here!
-    await db.commit()
+async def create_facility(db: DBDep, data_create: FacilitiesWriteSchema):
+    data = await FacilityService(db).add_facility(data_create)
     return {"status": "Ok", "data": data}
 
 
 @router.delete("/{facility_id}", status_code=204)
-@only_one_error_handler
 async def delete_facility(db: DBDep, facility_id: int):
-    await db.facilities.delete(id=facility_id)
-    await db.commit()
+    try:
+        await FacilityService(db).delete_facility(facility_id=facility_id)
+    except FacilityNotFoundException:
+        raise FacilityNotFoundHTTPException
     return {"status": "Ok"}
 
 
 @router.put("/{facility_id}", status_code=204)
-@only_one_error_handler
 async def update_facility(
-    db: DBDep, facility_id: int, schema_update: FacilitiesWriteSchema
+    db: DBDep, facility_id: int, data_update: FacilitiesWriteSchema
 ):
-    await db.facilities.edit(schema_update, id=facility_id)
-    await db.commit()
+    try:
+        await FacilityService(db).edit_facility(facility_id=facility_id, data_update=data_update)
+    except FacilityNotFoundException:
+        raise FacilityNotFoundHTTPException
     return {"status": "Ok"}
 
 
 @router.patch("/{facility_id}", status_code=204)
-@only_one_error_handler
+# @only_one_error_handler
 async def partial_update_facility(
-    db: DBDep, facility_id: int, schema_patch: FacilitiesPatchSchema
+    db: DBDep, facility_id: int, data_update: FacilitiesPatchSchema
 ):
-    await db.facilities.edit(schema_patch, partial_update=True, id=facility_id)
-    await db.commit()
+    try:
+        await FacilityService(db).edit_facility_partially(facility_id=facility_id, data_update=data_update)
+    except FacilityNotFoundException:
+        raise FacilityNotFoundHTTPException
     return {"status": "Ok"}

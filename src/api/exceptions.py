@@ -22,8 +22,13 @@ class FacilitiesInvalidHTTPException(AppBaseHTTPException):
     detail = "Facilities invalid"
 
 
+# common not found exceptions
 class NotFoundHTTPException(AppBaseHTTPException):
     status_code: status.HTTP_404_NOT_FOUND
+
+
+class FacilityNotFoundHTTPException(NotFoundHTTPException):
+    status_code = status.HTTP_404_NOT_FOUND
 
 
 class HotelNotFoundHTTPException(NotFoundHTTPException):

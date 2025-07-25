@@ -1,5 +1,4 @@
 from src.exceptions import AppBaseException
-from src.repositories.exceptions import NotFoundException
 
 
 # auth exceptions
@@ -20,11 +19,15 @@ class RoomHasBookingsException(AppBaseException):
     detail = "Room has remaining bookings"
 
 
-class HotelNotFoundException(NotFoundException):
+class FacilityNotFoundException(AppBaseException):
+    detail = "Facility not found"
+
+
+class HotelNotFoundException(AppBaseException):
     detail = "Hotel not found"
 
 
-class RoomNotFoundException(NotFoundException):
+class RoomNotFoundException(AppBaseException):
     detail = "Room not found"
 
 
