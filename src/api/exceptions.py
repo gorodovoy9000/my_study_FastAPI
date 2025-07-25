@@ -3,12 +3,12 @@ from fastapi import HTTPException, status
 
 class AppBaseHTTPException(HTTPException):
     status_code: int = status.HTTP_500_INTERNAL_SERVER_ERROR
-    details: str = ""
+    detail: str = ""
 
     def __init__(self):
         super().__init__(
             status_code=self.status_code,
-            detail=self.details,
+            detail=self.detail,
         )
 
 
@@ -24,11 +24,11 @@ class FacilitiesInvalidHTTPException(AppBaseHTTPException):
 
 # common not found exceptions
 class NotFoundHTTPException(AppBaseHTTPException):
-    status_code: status.HTTP_404_NOT_FOUND
+    status_code = status.HTTP_404_NOT_FOUND
 
 
 class FacilityNotFoundHTTPException(NotFoundHTTPException):
-    status_code = status.HTTP_404_NOT_FOUND
+    detail = "Facility not found"
 
 
 class HotelNotFoundHTTPException(NotFoundHTTPException):

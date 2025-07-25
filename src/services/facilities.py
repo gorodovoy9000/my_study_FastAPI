@@ -11,7 +11,7 @@ class FacilityService(BaseService):
 
     async def get_facility(self, facility_id: int) -> FacilitiesSchema:
         try:
-            data = await self.db.facilities.get(id=facility_id)
+            data = await self.db.facilities.get_one(id=facility_id)
         except NotFoundException as err:
             raise FacilityNotFoundException from err
         return data
@@ -30,7 +30,7 @@ class FacilityService(BaseService):
 
     async def edit_facility_partially(self, facility_id: int, data_update: FacilitiesPatchSchema) -> None:
         try:
-            await self.db.facilities.edit(data_update, id=facility_id, partially=True)
+            await self.db.facilities.edit(data_update, id=facility_id, partial_update=True)
         except NotFoundException as err:
             raise FacilityNotFoundException from err
         await self.db.commit()
