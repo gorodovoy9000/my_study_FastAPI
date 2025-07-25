@@ -4,9 +4,9 @@ from typing import Annotated
 from fastapi import APIRouter, Query, HTTPException, status
 from fastapi_cache.decorator import cache
 
-from src.exceptions import ForeignKeyException, NotFoundException
+from src.exceptions import ForeignKeyException, NotFoundException, DateFromBiggerOrEqualDateToException
 from src.api.dependencies import DBDep, PaginationDep
-from src.api.exceptions import validate_date_to_is_bigger_than_date_from
+from src.api.exceptions import DateFromBiggerOrEqualDateToHTTPException
 from src.schemas.hotels import HotelsSchema, HotelsPatchSchema, HotelsWriteSchema
 from src.services.hotels import HotelService
 
@@ -27,15 +27,17 @@ async def get_hotels(
         str | None, Query(description="Filter by substring hotel location")
     ] = None,
 ) -> list[HotelsSchema]:
-    validate_date_to_is_bigger_than_date_from(date_from=date_from, date_to=date_to)
-    data = await HotelService(db).get_hotels_filtered(
-        date_from=date_from,
-        date_to=date_to,
-        location=location,
-        title=title,
-        limit=pagination.limit,
-        offset=pagination.offset,
-    )
+    try:
+        data = await HotelService(db).get_hotels_filtered(
+            date_from=date_from,
+            date_to=date_to,
+            location=location,
+            title=title,
+            limit=pagination.limit,
+            offset=pagination.offset,
+        )
+    except DateFromBiggerOrEqualDateToException:
+        raise DateFromBiggerOrEqualDateToHTTPException
     return data
 
 

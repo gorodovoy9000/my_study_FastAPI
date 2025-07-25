@@ -1,3 +1,6 @@
+from datetime import date
+
+
 # base exception
 class AppBaseException(Exception):
     detail = "Unexpected error"
@@ -45,3 +48,12 @@ class FileNotFoundException(AppBaseException):
 # business logic exceptions
 class NoVacantRoomsException(AppBaseException):
     detail = "No vacant rooms remain"
+
+
+class DateFromBiggerOrEqualDateToException(AppBaseException):
+    detail = "Field date_from is bigger or equal to field date_to"
+
+
+def validate_date_to_is_bigger_than_date_from(date_from: date, date_to: date):
+    if date_from >= date_to:
+        raise DateFromBiggerOrEqualDateToException

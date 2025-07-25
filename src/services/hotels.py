@@ -1,6 +1,6 @@
 from datetime import date
 
-# from src.api.exceptions import validate_date_to_is_bigger_than_date_from
+from src.exceptions import validate_date_to_is_bigger_than_date_from
 from src.schemas.hotels import HotelsWriteSchema, HotelsPatchSchema, HotelsSchema
 from src.services.base import BaseService
 
@@ -15,7 +15,7 @@ class HotelService(BaseService):
             limit: int,
             offset: int,
     ) -> list[HotelsSchema]:
-        # validate_date_to_is_bigger_than_date_from(date_from=date_from, date_to=date_to)
+        validate_date_to_is_bigger_than_date_from(date_from=date_from, date_to=date_to)
         hotels =  await self.db.hotels.get_hotels_with_vacant_rooms(
             date_from=date_from,
             date_to=date_to,

@@ -1,4 +1,4 @@
-from datetime import date
+# from datetime import date
 import functools
 
 from fastapi import HTTPException, status
@@ -31,31 +31,17 @@ def only_one_error_handler(func):
     return wrapper
 
 
-# def constrain_violation_error_handler(func):
-#     @functools.wraps(func)
-#     async def wrapper(*args, **kwargs):
-#         try:
-#             return await func(*args, **kwargs)
-#         except ForeignKeyException as err:
-#             raise HTTPException(
-#                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-#                 detail=str(err),
-#             )
-#         except NullValueException as err:
-#             raise HTTPException(
-#                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-#                 detail=str(err),
-#             )
-#         except UniqueValueException as err:
-#             raise HTTPException(
-#                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-#                 detail=str(err),
-#             )
-#
-#     return wrapper
+class AppBaseHTTPException(HTTPException):
+    status_code: int = status.HTTP_500_INTERNAL_SERVER_ERROR
+    details: str = ""
+
+    def __init__(self):
+        super().__init__(
+            status_code=self.status_code,
+            detail=self.details,
+        )
 
 
-def validate_date_to_is_bigger_than_date_from(date_from: date, date_to: date):
-    if date_from >= date_to:
-        msg = "date_to must be bigger than date_from"
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=msg)
+class DateFromBiggerOrEqualDateToHTTPException(AppBaseHTTPException):
+    status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
+    detail = "date_to must be bigger than date_from"
