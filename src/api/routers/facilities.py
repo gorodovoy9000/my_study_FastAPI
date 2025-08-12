@@ -60,7 +60,6 @@ async def update_facility(
 
 
 @router.patch("/{facility_id}", status_code=204)
-# @only_one_error_handler
 async def partial_update_facility(
     db: DBDep, facility_id: int, data_update: FacilitiesPatchSchema
 ):
