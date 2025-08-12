@@ -15,6 +15,7 @@ from src.database import Base, engine_null_pool, async_session_maker_null_pool
 from src.main import app
 from src.models import *  # noqa: F403
 from src.support_tables import *  # noqa: F403
+from src.schemas.facilities import FacilitiesWriteSchema
 from src.schemas.hotels import HotelsWriteSchema
 from src.schemas.rooms import RoomsWriteSchema
 from src.utils.db_manager import DBManager
@@ -34,6 +35,44 @@ async def get_db_null_pool():
 app.dependency_overrides[get_db] = get_db_null_pool
 
 
+# auto start fixtures
+@pytest.fixture(scope="session", autouse=True)
+async def setup_database(check_test_mode):
+    # clean db and create tables
+    async with engine_null_pool.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
+
+    # get mock data
+    with open("tests/mock_hotels.json", encoding="utf-8") as file:
+        hotels_data = json.load(file)
+    with open("tests/mock_rooms.json", encoding="utf-8") as file:
+        rooms_data = json.load(file)
+    with open("tests/mock_facilities.json", encoding="utf-8") as file:
+        facilities_data = json.load(file)
+
+    # set schemas
+    hotels_schema = [HotelsWriteSchema.model_validate(obj) for obj in hotels_data]
+    rooms_schema = [RoomsWriteSchema.model_validate(obj) for obj in rooms_data]
+    facilities_schema = [FacilitiesWriteSchema.model_validate(obj) for obj in facilities_data]
+
+    # fill db
+    async with DBManager(session_factory=async_session_maker_null_pool) as db_:
+        await db_.hotels.add_bulk(hotels_schema)
+        await db_.rooms.add_bulk(rooms_schema)
+        await db_.facilities.add_bulk(facilities_schema)
+        await db_.commit()
+
+
+@pytest.fixture(scope="session", autouse=True)
+async def setup_users(setup_database, ac):
+    with open("tests/mock_users.json") as fo:
+        data = json.load(fo)
+    for obj in data:
+        response = await ac.post("/auth/register", json=obj)
+        assert response.is_success
+
+
 # callable fixtures
 @pytest.fixture()
 async def db() -> AsyncGenerator[DBManager, None]:
@@ -49,42 +88,8 @@ async def ac() -> AsyncGenerator[AsyncClient, None]:
         yield ac
 
 
-# auto start fixtures
-@pytest.fixture(scope="session", autouse=True)
-async def setup_database(check_test_mode):
-    # clean db and create tables
-    async with engine_null_pool.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-        await conn.run_sync(Base.metadata.create_all)
-
-    # get mock data
-    with open("tests/mock_hotels.json", encoding="utf-8") as file:
-        hotels_data = json.load(file)
-    with open("tests/mock_rooms.json", encoding="utf-8") as file:
-        rooms_data = json.load(file)
-
-    # set schemas
-    hotels_schema = [HotelsWriteSchema.model_validate(obj) for obj in hotels_data]
-    rooms_schema = [RoomsWriteSchema.model_validate(obj) for obj in rooms_data]
-
-    # fill db
-    async with DBManager(session_factory=async_session_maker_null_pool) as db_:
-        await db_.hotels.add_bulk(hotels_schema)
-        await db_.rooms.add_bulk(rooms_schema)
-        await db_.commit()
-
-
-@pytest.fixture(scope="session", autouse=True)
-async def register_user(setup_database, ac):
-    with open("tests/mock_users.json") as fo:
-        data = json.load(fo)
-    for obj in data:
-        response = await ac.post("/auth/register", json=obj)
-        assert response.is_success
-
-
 @pytest.fixture(scope="session")
-async def authenticated_ac(register_user, ac):
+async def authenticated_ac(setup_users, ac):
     data = {"email": "vasya@test.com", "password": "password2"}
     response = await ac.post("/auth/login", json=data)
     assert response.is_success
