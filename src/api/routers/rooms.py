@@ -53,7 +53,7 @@ async def get_room(db: DBDep, hotel_id: int, room_id: int) -> RoomsRelsSchema:
     return data
 
 
-@router.post("/{hotel_id/rooms", status_code=201)
+@router.post("/{hotel_id}/rooms", status_code=201)
 async def create_room(db: DBDep, hotel_id: int, request_data: RoomsRequestPostSchema):
     try:
         data = await RoomService(db).add_room(request_data=request_data)
@@ -64,7 +64,7 @@ async def create_room(db: DBDep, hotel_id: int, request_data: RoomsRequestPostSc
     return {"status": "Ok", "data": data}
 
 
-@router.delete("/{hotel_id}rooms/{room_id}", status_code=204)
+@router.delete("/{hotel_id}/rooms/{room_id}", status_code=204)
 async def delete_room(db: DBDep, hotel_id: int, room_id: int):
     # todo redundant hotel_id, when we have room_id which is primary_key
     try:
@@ -77,7 +77,7 @@ async def delete_room(db: DBDep, hotel_id: int, room_id: int):
     return {"status": "Ok"}
 
 
-@router.put("/{hotel_id}rooms/{room_id}", status_code=204)
+@router.put("/{hotel_id}/rooms/{room_id}", status_code=204)
 async def update_room(
     db: DBDep, hotel_id: int, room_id: int, request_data: RoomsRequestPostSchema
 ):
@@ -93,7 +93,7 @@ async def update_room(
     return {"status": "Ok"}
 
 
-@router.patch("/{hotel_id}rooms/{room_id}", status_code=204)
+@router.patch("/{hotel_id}/rooms/{room_id}", status_code=204)
 async def partial_update_room(
     db: DBDep, hotel_id: int, room_id: int, request_data: RoomsRequestPatchSchema
 ):

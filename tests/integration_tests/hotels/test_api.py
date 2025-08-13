@@ -45,4 +45,3 @@ async def test_hotel_crud(ac):
     # delete hotel
     response = await ac.delete(f"/hotels/{created_data['id']}")
     assert response.is_success
-

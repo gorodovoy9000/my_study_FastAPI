@@ -70,7 +70,7 @@ class RoomService(BaseService):
 
     async def edit_room_partially(self, room_id: int, request_data: RoomsRequestPatchSchema) -> None:
         # edit room partially
-        update_data = RoomsPatchSchema(**request_data.model_dump())
+        update_data = RoomsPatchSchema(**request_data.model_dump(exclude_unset=True))
         await self._edit_room(room_id=room_id, data=update_data, partial_update=True)
         # change room facilities
         if request_data.facilities_ids is not None:
