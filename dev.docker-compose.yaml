@@ -31,9 +31,9 @@ services:
             - "8000:8000"
         volumes:
             - "media:${LOCAL_MEDIA_ROOT}"
-            - ./alembic.ini:/opt/fastapi_app/alembic.ini:ro
-            - ./src:/opt/fastapi_app/src:ro
-            - ./src/migrations/versions:/opt/fastapi_app/src/migrations/versions
+            - ./alembic.ini:/app/alembic.ini:ro
+            - ./src:/app/src:ro
+            - ./src/migrations/versions:/app/src/migrations/versions
         command: >
             bash -c "fastapi dev --host 0.0.0.0 --port 8000 src/main.py"
 
@@ -49,7 +49,7 @@ services:
             - redis
         volumes:
             - "media:${LOCAL_MEDIA_ROOT}"
-            - ./src:/opt/fastapi_app/src:ro
+            - ./src:/app/src:ro
         command: "celery --app=src.background_tasks.celery.app:celery_app worker -l INFO"
 
     celery_beat:
@@ -64,7 +64,7 @@ services:
             - redis
         volumes:
             - "media:${LOCAL_MEDIA_ROOT}"
-            - ./src:/opt/fastapi_app/src:ro
+            - ./src:/app/src:ro
         command: "celery --app=src.background_tasks.celery.app:celery_app beat -l INFO"
 
 volumes:

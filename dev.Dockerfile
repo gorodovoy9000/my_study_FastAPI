@@ -12,7 +12,7 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 ENV UV_PROJECT_ENVIRONMENT="/usr/local/"
 
 # cd to app root
-WORKDIR /opt/fastapi_app
+WORKDIR /app
 
 # install python packages
 RUN --mount=type=cache,target=/root/.cache/uv \

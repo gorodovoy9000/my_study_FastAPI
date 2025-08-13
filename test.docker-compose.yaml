@@ -19,9 +19,9 @@ services:
         expose:
             - 8000
         volumes:
-            - ./pytest.ini:/opt/fastapi_app/pytest.ini:ro
-            - ./src:/opt/fastapi_app/src:ro
-            - ./tests:/opt/fastapi_app/tests:ro
+            - ./pytest.ini:/app/pytest.ini:ro
+            - ./src:/app/src:ro
+            - ./tests:/app/tests:ro
         command: bash -c "pytest"
 
 
