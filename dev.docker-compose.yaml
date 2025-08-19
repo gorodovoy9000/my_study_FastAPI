@@ -67,6 +67,20 @@ services:
             - ./src:/app/src:ro
         command: "celery --app=src.background_tasks.celery.app:celery_app beat -l INFO"
 
+    nginx:
+        image: nginx:stable-alpine
+        environment:
+            - "LOCAL_MEDIA_ROOT=${LOCAL_MEDIA_ROOT}"
+        depends_on:
+            - backend
+            - celery_worker
+            - celery_beat
+        ports:
+            - "9000:9000"
+        volumes:
+            - "media:${LOCAL_MEDIA_ROOT}"
+            - ./nginx/templates/dev.app.conf.template:/etc/nginx/templates/dev.app.conf.template:ro
+
 volumes:
     media:
     pgdata:

@@ -1,0 +1,28 @@
+server {
+    listen 9000;
+    server_name localhost;
+    # root on backend server for now
+    location / {
+        proxy_pass http://backend:8000;
+    }
+    # api and openapi docs on backend server
+    location /api {
+        proxy_pass http://backend:8000/api;
+    }
+    location /docs {
+        proxy_pass http://backend:8000/docs;
+    }
+    location /openapi.json {
+        proxy_pass http://backend:8000/openapi.json;
+    }
+    # root path
+    # serve media files to anyone
+    location /open_media {
+        alias ${LOCAL_MEDIA_ROOT};
+    }
+    # serve media files only to internal
+    location /internal_media {
+        internal;
+        alias ${LOCAL_MEDIA_ROOT};
+    }
+}

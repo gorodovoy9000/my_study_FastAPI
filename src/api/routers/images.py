@@ -1,23 +1,16 @@
 from fastapi import APIRouter, HTTPException, UploadFile, status
-from fastapi.responses import FileResponse
 
-from src.exceptions import FileNotFoundException
 from src.services.file_storage import MediaFileStorageService
 from src.background_tasks.celery.tasks import resize_image
+from src.utils.responses import build_protected_file_redirect_response
 
 router = APIRouter(prefix="/images", tags=["Images"])
 
 
 @router.get("/{filepath}")
 def get_image(filepath: str):
-    try:
-        abs_filepath = MediaFileStorageService().get_abs_filepath(filepath)
-        return FileResponse(abs_filepath)
-    except FileNotFoundException:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="File not found",
-        )
+    # return special redirect response for NGINX
+    return build_protected_file_redirect_response(filepath)
 
 
 @router.post("")
