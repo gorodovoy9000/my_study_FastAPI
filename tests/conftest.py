@@ -69,7 +69,7 @@ async def setup_users(setup_database, ac):
     with open("tests/mock_users.json") as fo:
         data = json.load(fo)
     for obj in data:
-        response = await ac.post("/auth/register", json=obj)
+        response = await ac.post("/api/auth/register", json=obj)
         assert response.is_success
 
 
@@ -91,7 +91,7 @@ async def ac() -> AsyncGenerator[AsyncClient, None]:
 @pytest.fixture(scope="session")
 async def authenticated_ac(setup_users, ac):
     data = {"email": "vasya@test.com", "password": "password2"}
-    response = await ac.post("/auth/login", json=data)
+    response = await ac.post("/api/auth/login", json=data)
     assert response.is_success
     assert ac.cookies["access_token"]
     yield ac

@@ -14,7 +14,7 @@ import pytest
 async def test_auth_flow(username, email, password, ac):
     # register user
     response = await ac.post(
-        "/auth/register",
+        "/api/auth/register",
         json={
             "username": username,
             "email": email,
@@ -25,7 +25,7 @@ async def test_auth_flow(username, email, password, ac):
 
     # login user
     response = await ac.post(
-        "/auth/login",
+        "/api/auth/login",
         json={
             "email": email,
             "password": password,
@@ -35,7 +35,7 @@ async def test_auth_flow(username, email, password, ac):
     assert response.cookies["access_token"]
 
     # check auth/me return the user
-    response = await ac.get("auth/me")
+    response = await ac.get("/api/auth/me")
     assert response.is_success
     response_payload = response.json()
     assert response_payload["username"] == username
@@ -44,18 +44,18 @@ async def test_auth_flow(username, email, password, ac):
     assert "hashed_password" not in response_payload
 
     # logout user
-    response = await ac.post("auth/logout")
+    response = await ac.post("/api/auth/logout")
     assert response.is_success
     assert "access_token" not in response.cookies
 
     # check auth error after logout and get auth/me
-    response = await ac.get("auth/me")
+    response = await ac.get("/api/auth/me")
     assert response.status_code == 401
 
 
 async def test_already_registered(ac):
     response = await ac.post(
-        "/auth/register",
+        "/api/auth/register",
         json={
             "username": "emperor",
             "email": "best@syth.com",
@@ -67,7 +67,7 @@ async def test_already_registered(ac):
 
 async def test_invalid_password(ac):
     response = await ac.post(
-        "/auth/login",
+        "/api/auth/login",
         json={
             "email": "the-best@bright.com",
             "password": "green_saber",

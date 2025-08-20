@@ -1,6 +1,6 @@
 async def test_get_rooms(ac):
     response = await ac.get(
-        "/hotels/1/rooms",
+        "/api/hotels/1/rooms",
         params={
             "date_from": "2025-08-01",
             "date_to": "2025-08-10",
@@ -19,7 +19,7 @@ async def test_room_crud(ac):
         "price": 500,
         "quantity": 4,
     }
-    response = await ac.post("/hotels/1/rooms", json=post_data)
+    response = await ac.post("/api/hotels/1/rooms", json=post_data)
     assert response.is_success
     response_data = response.json()
     assert isinstance(response_data, dict)
@@ -27,7 +27,7 @@ async def test_room_crud(ac):
     assert created_data["title"] == post_data["title"]
 
     # get room
-    response = await ac.get(f"/hotels/1/rooms/{created_data['id']}")
+    response = await ac.get(f"/api/hotels/1/rooms/{created_data['id']}")
     assert response.is_success
 
     # put room
@@ -38,16 +38,16 @@ async def test_room_crud(ac):
         "price": 600,
         "quantity": 4,
     }
-    response = await ac.put(f"/hotels/1/rooms/{created_data['id']}", json=put_data)
+    response = await ac.put(f"/api/hotels/1/rooms/{created_data['id']}", json=put_data)
     assert response.is_success
 
     # patch room
     patch_data = {
         "quantity": 5,
     }
-    response = await ac.patch(f"/hotels/1/rooms/{created_data['id']}", json=patch_data)
+    response = await ac.patch(f"/api/hotels/1/rooms/{created_data['id']}", json=patch_data)
     assert response.is_success
 
     # delete room
-    response = await ac.delete(f"/hotels/1/rooms/{created_data['id']}")
+    response = await ac.delete(f"/api/hotels/1/rooms/{created_data['id']}")
     assert response.is_success

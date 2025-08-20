@@ -33,7 +33,7 @@ async def test_add_booking(
         "date_from": date_from,
         "date_to": date_to,
     }
-    response = await authenticated_ac.post("/bookings", json=data)
+    response = await authenticated_ac.post("/api/bookings", json=data)
     if response.is_success:
         response_payload = response.json()
         assert isinstance(response_payload, dict)
@@ -66,13 +66,13 @@ async def test_add_and_get_bookings(
         "date_to": date_to,
     }
     # test response data
-    response = await authenticated_ac.post("/bookings", json=data)
+    response = await authenticated_ac.post("/api/bookings", json=data)
     assert response.is_success
     response_payload = response.json()
     assert isinstance(response_payload, dict)
     assert "data" in response_payload
     # check my bookings
-    response = await authenticated_ac.get("/bookings/me")
+    response = await authenticated_ac.get("/api/bookings/me")
     assert response.is_success
     response_payload = response.json()
     assert isinstance(response_payload, list)

@@ -1,10 +1,6 @@
 server {
     listen 9000;
     server_name localhost;
-    # root on backend server for now
-    location / {
-        proxy_pass http://backend:8000;
-    }
     # api and openapi docs on backend server
     location /api {
         proxy_pass http://backend:8000/api;
