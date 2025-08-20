@@ -1,8 +1,8 @@
 from sqlalchemy import delete
 import pytest
 
-from src.models.bookings import BookingsOrm
-from tests.conftest import get_db_null_pool
+from bookings_study.models.bookings import BookingsOrm
+from conftest import get_db_null_pool
 
 
 @pytest.fixture(scope="module")

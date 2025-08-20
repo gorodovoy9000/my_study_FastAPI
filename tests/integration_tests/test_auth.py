@@ -1,4 +1,4 @@
-from src.services.auth import AuthService
+from bookings_study.services.auth import AuthService
 
 
 def test_create_and_decode_access_token():

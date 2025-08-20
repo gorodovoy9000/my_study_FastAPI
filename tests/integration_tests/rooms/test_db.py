@@ -1,4 +1,4 @@
-from src.schemas.rooms import RoomsWriteSchema
+from bookings_study.schemas.rooms import RoomsWriteSchema
 
 
 async def test_room_crud(db):

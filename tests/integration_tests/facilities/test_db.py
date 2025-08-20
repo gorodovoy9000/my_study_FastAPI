@@ -1,4 +1,4 @@
-from src.schemas.facilities import FacilitiesWriteSchema
+from bookings_study.schemas.facilities import FacilitiesWriteSchema
 
 
 async def test_facility_crud(db):

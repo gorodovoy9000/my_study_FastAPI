@@ -32,10 +32,10 @@ services:
         volumes:
             - "media:${LOCAL_MEDIA_ROOT}"
             - ./alembic.ini:/app/alembic.ini:ro
-            - ./src:/app/src:ro
-            - ./src/migrations/versions:/app/src/migrations/versions
+            - ./src/bookings_study:/app/bookings_study:ro
+            - ./src/bookings_study/migrations/versions:/app/bookings_study/migrations/versions
         command: >
-            bash -c "fastapi dev --host 0.0.0.0 --port 8000 src/main.py"
+            bash -c "fastapi dev --host 0.0.0.0 --port 8000 bookings_study/main.py"
 
     celery_worker:
         build:
@@ -49,8 +49,8 @@ services:
             - redis
         volumes:
             - "media:${LOCAL_MEDIA_ROOT}"
-            - ./src:/app/src:ro
-        command: "celery --app=src.background_tasks.celery.app:celery_app worker -l INFO"
+            - ./src/bookings_study:/app/bookings_study:ro
+        command: "celery --app=bookings_study.background_tasks.celery.app:celery_app worker -l INFO"
 
     celery_beat:
         build:
@@ -64,8 +64,8 @@ services:
             - redis
         volumes:
             - "media:${LOCAL_MEDIA_ROOT}"
-            - ./src:/app/src:ro
-        command: "celery --app=src.background_tasks.celery.app:celery_app beat -l INFO"
+            - ./src/bookings_study:/app/bookings_study:ro
+        command: "celery --app=bookings_study.background_tasks.celery.app:celery_app beat -l INFO"
 
     nginx:
         image: nginx:stable-alpine

@@ -1,6 +1,6 @@
 from datetime import date
 
-from src.schemas.bookings import BookingsWriteSchema
+from bookings_study.schemas.bookings import BookingsWriteSchema
 
 
 async def test_booking_crud(db):

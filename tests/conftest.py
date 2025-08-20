@@ -9,16 +9,14 @@ mock.patch("fastapi_cache.decorator.cache", lambda *args, **kwargs: lambda f: f)
 from httpx import AsyncClient, ASGITransport
 import pytest
 
-from src.api.dependencies import get_db
-from src.config import settings
-from src.database import Base, engine_null_pool, async_session_maker_null_pool
-from src.main import app
-from src.models import *  # noqa: F403
-from src.support_tables import *  # noqa: F403
-from src.schemas.facilities import FacilitiesWriteSchema
-from src.schemas.hotels import HotelsWriteSchema
-from src.schemas.rooms import RoomsWriteSchema
-from src.utils.db_manager import DBManager
+from bookings_study.api.dependencies import get_db
+from bookings_study.config import settings
+from bookings_study.database import Base, engine_null_pool, async_session_maker_null_pool
+from bookings_study.main import app
+from bookings_study.schemas.facilities import FacilitiesWriteSchema
+from bookings_study.schemas.hotels import HotelsWriteSchema
+from bookings_study.schemas.rooms import RoomsWriteSchema
+from bookings_study.utils.db_manager import DBManager
 
 
 # DO NOT RUN TESTS IF APP MODE IS NOT "TEST"
