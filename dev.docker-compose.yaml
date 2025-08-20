@@ -8,14 +8,14 @@ services:
         ports:
             - "${DB_PORT:-5432}:${DB_PORT:-5432}"
         volumes:
-            - pgdata:/var/lib/postgresql/data
+            - dev_pg_data:/var/lib/postgresql/data
 
     redis:
         image: redis:8
         ports:
             - "${REDIS_PORT:-6379}:${REDIS_PORT:-6379}"
         volumes:
-            - redis_data:/data
+            - dev_redis_data:/data
 
     backend:
         build:
@@ -30,7 +30,7 @@ services:
         ports:
             - "8000:8000"
         volumes:
-            - "media:${LOCAL_MEDIA_ROOT}"
+            - "dev_media:${LOCAL_MEDIA_ROOT}"
             - ./alembic.ini:/app/alembic.ini:ro
             - ./src/bookings_study:/app/bookings_study:ro
             - ./src/bookings_study/migrations/versions:/app/bookings_study/migrations/versions
@@ -48,7 +48,7 @@ services:
             - backend
             - redis
         volumes:
-            - "media:${LOCAL_MEDIA_ROOT}"
+            - "dev_media:${LOCAL_MEDIA_ROOT}"
             - ./src/bookings_study:/app/bookings_study:ro
         command: "celery --app=bookings_study.background_tasks.celery.app:celery_app worker -l INFO"
 
@@ -63,7 +63,7 @@ services:
             - backend
             - redis
         volumes:
-            - "media:${LOCAL_MEDIA_ROOT}"
+            - "dev_media:${LOCAL_MEDIA_ROOT}"
             - ./src/bookings_study:/app/bookings_study:ro
         command: "celery --app=bookings_study.background_tasks.celery.app:celery_app beat -l INFO"
 
@@ -78,10 +78,10 @@ services:
         ports:
             - "9000:9000"
         volumes:
-            - "media:${LOCAL_MEDIA_ROOT}"
+            - "dev_media:${LOCAL_MEDIA_ROOT}"
             - ./nginx/templates/dev.app.conf.template:/etc/nginx/templates/dev.app.conf.template:ro
 
 volumes:
-    media:
-    pgdata:
-    redis_data:
+    dev_media:
+    dev_pg_data:
+    dev_redis_data:
