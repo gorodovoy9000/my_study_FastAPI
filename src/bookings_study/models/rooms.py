@@ -6,7 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from bookings_study.database import Base
 
 if typing.TYPE_CHECKING:
-    pass
+    from bookings_study.models.facilities import FacilitiesOrm
 
 
 class RoomsOrm(Base):

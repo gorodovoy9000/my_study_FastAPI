@@ -6,6 +6,7 @@ from sqlalchemy import pool
 from alembic import context
 
 # our DB
+from bookings_study.database import Base
 from bookings_study.models.bookings import *  # noqa: F403
 from bookings_study.support_tables import *  # noqa: F403
 
