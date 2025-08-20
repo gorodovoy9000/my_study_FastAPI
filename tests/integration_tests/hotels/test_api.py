@@ -12,10 +12,7 @@ async def test_get_hotels(ac):
 
 async def test_hotel_crud(ac):
     # create hotel
-    post_data = {
-        "title": "Ukhovertka",
-        "location": "Somewhere in jungle"
-    }
+    post_data = {"title": "Ukhovertka", "location": "Somewhere in jungle"}
     response = await ac.post("/api/hotels", json=post_data)
     assert response.is_success
     response_data = response.json()
@@ -28,17 +25,12 @@ async def test_hotel_crud(ac):
     assert response.is_success
 
     # put hotel
-    put_data = {
-        "title": "Nautilus",
-        "location": "Submarine somewhere in ocean"
-    }
+    put_data = {"title": "Nautilus", "location": "Submarine somewhere in ocean"}
     response = await ac.put(f"/api/hotels/{created_data['id']}", json=put_data)
     assert response.is_success
 
     # patch hotel
-    patch_data = {
-        "location": "Somewhere in pacific"
-    }
+    patch_data = {"location": "Somewhere in pacific"}
     response = await ac.patch(f"/api/hotels/{created_data['id']}", json=patch_data)
     assert response.is_success
 

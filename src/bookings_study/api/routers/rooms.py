@@ -99,7 +99,9 @@ async def partial_update_room(
 ):
     # todo redundant hotel_id, when we have room_id which is primary_key
     try:
-        await RoomService(db).edit_room_partially(room_id=room_id, request_data=request_data)
+        await RoomService(db).edit_room_partially(
+            room_id=room_id, request_data=request_data
+        )
     except RoomNotFoundException:
         raise RoomNotFoundHTTPException
     except HotelNotFoundHTTPException:

@@ -7,7 +7,10 @@ from sqlalchemy.orm import selectinload
 from bookings_study.repositories.exceptions import NotFoundException
 from bookings_study.models.rooms import RoomsOrm
 from bookings_study.repositories.base import BaseRepository, BaseM2MRepository
-from bookings_study.repositories.mappers.mappers import RoomsDataMapper, RoomsRelsDataMapper
+from bookings_study.repositories.mappers.mappers import (
+    RoomsDataMapper,
+    RoomsRelsDataMapper,
+)
 from bookings_study.repositories.utils.complex_queries import query_vacant_rooms
 from bookings_study.support_tables.m2m import FacilitiesRoomsM2MTable
 

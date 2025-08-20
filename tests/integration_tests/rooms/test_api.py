@@ -45,7 +45,9 @@ async def test_room_crud(ac):
     patch_data = {
         "quantity": 5,
     }
-    response = await ac.patch(f"/api/hotels/1/rooms/{created_data['id']}", json=patch_data)
+    response = await ac.patch(
+        f"/api/hotels/1/rooms/{created_data['id']}", json=patch_data
+    )
     assert response.is_success
 
     # delete room

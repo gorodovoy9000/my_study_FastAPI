@@ -5,8 +5,15 @@ from jwt.exceptions import DecodeError, InvalidSignatureError, ExpiredSignatureE
 from passlib.context import CryptContext
 
 from bookings_study.config import settings
-from bookings_study.repositories.exceptions import NotFoundException, UniqueValueException
-from bookings_study.schemas.users import UsersAddSchema, UsersLoginSchema, UsersRegisterSchema
+from bookings_study.repositories.exceptions import (
+    NotFoundException,
+    UniqueValueException,
+)
+from bookings_study.schemas.users import (
+    UsersAddSchema,
+    UsersLoginSchema,
+    UsersRegisterSchema,
+)
 from bookings_study.services.base import BaseService
 from bookings_study.services.exceptions import (
     InvalidPasswordException,
@@ -46,7 +53,9 @@ class AuthService(BaseService):
         # authorize user
         try:
             # check user exists
-            user = await self.db.users.get_user_with_hashed_password(email=data_login.email)
+            user = await self.db.users.get_user_with_hashed_password(
+                email=data_login.email
+            )
             # verify password
             self.verify_password(data_login.password, user.hashed_password)
         # unauthorized error

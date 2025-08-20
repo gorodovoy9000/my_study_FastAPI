@@ -6,7 +6,9 @@ from bookings_study.models.bookings import BookingsOrm
 from bookings_study.models.rooms import RoomsOrm
 from bookings_study.schemas.bookings import BookingsWriteSchema
 from bookings_study.repositories.base import BaseRepository
-from bookings_study.repositories.exceptions import RoomQuantityZeroOnDateIntervalException
+from bookings_study.repositories.exceptions import (
+    RoomQuantityZeroOnDateIntervalException,
+)
 from bookings_study.repositories.mappers.mappers import BookingsDataMapper
 
 

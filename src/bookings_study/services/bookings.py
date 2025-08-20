@@ -1,7 +1,17 @@
-from bookings_study.repositories.exceptions import NotFoundException, RoomQuantityZeroOnDateIntervalException
-from bookings_study.schemas.bookings import BookingsSchema, BookingsRequestSchema, BookingsWriteSchema
+from bookings_study.repositories.exceptions import (
+    NotFoundException,
+    RoomQuantityZeroOnDateIntervalException,
+)
+from bookings_study.schemas.bookings import (
+    BookingsSchema,
+    BookingsRequestSchema,
+    BookingsWriteSchema,
+)
 from bookings_study.services.base import BaseService
-from bookings_study.services.exceptions import RoomNotFoundException, NoVacantRoomsException
+from bookings_study.services.exceptions import (
+    RoomNotFoundException,
+    NoVacantRoomsException,
+)
 from bookings_study.services.utils import validate_date_to_is_bigger_than_date_from
 
 
@@ -14,8 +24,12 @@ class BookingsService(BaseService):
         bookings = await self.db.bookings.get_many_filtered(user_id=user_id)
         return bookings
 
-    async def add_booking(self, user_id: int, request_data: BookingsRequestSchema) -> BookingsSchema:
-        validate_date_to_is_bigger_than_date_from(date_from=request_data.date_from, date_to=request_data.date_to)
+    async def add_booking(
+        self, user_id: int, request_data: BookingsRequestSchema
+    ) -> BookingsSchema:
+        validate_date_to_is_bigger_than_date_from(
+            date_from=request_data.date_from, date_to=request_data.date_to
+        )
         # get room
         try:
             room = await self.db.rooms.get_one(id=request_data.room_id)

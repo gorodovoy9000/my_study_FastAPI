@@ -37,7 +37,9 @@ async def create_booking(
     db: DBDep, user_id: UserIdDep, request_data: BookingsRequestSchema
 ):
     try:
-        data = await BookingsService(db).add_booking(user_id=user_id, request_data=request_data)
+        data = await BookingsService(db).add_booking(
+            user_id=user_id, request_data=request_data
+        )
     except DateFromBiggerOrEqualDateToException:
         raise DateFromBiggerOrEqualDateToHTTPException
     except RoomNotFoundException:

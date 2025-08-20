@@ -21,7 +21,9 @@ def test_task():
 
 @celery_app.task
 def resize_image(original_filename: str, rel_path: str):
-    logging.debug(f"Run background task resize_image with {original_filename=} and {rel_path=}")
+    logging.debug(
+        f"Run background task resize_image with {original_filename=} and {rel_path=}"
+    )
     file_service = MediaFileStorageService()
 
     sizes = [300, 200, 100]

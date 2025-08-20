@@ -5,14 +5,22 @@ from fastapi import APIRouter, Query, HTTPException, status
 from fastapi_cache.decorator import cache
 
 from bookings_study.api.dependencies import DBDep, PaginationDep
-from bookings_study.api.exceptions import DateFromBiggerOrEqualDateToHTTPException, HotelNotFoundHTTPException
-from bookings_study.schemas.hotels import HotelsSchema, HotelsPatchSchema, HotelsWriteSchema
+from bookings_study.api.exceptions import (
+    DateFromBiggerOrEqualDateToHTTPException,
+    HotelNotFoundHTTPException,
+)
+from bookings_study.schemas.hotels import (
+    HotelsSchema,
+    HotelsPatchSchema,
+    HotelsWriteSchema,
+)
 from bookings_study.services.hotels import HotelService
 from bookings_study.services.exceptions import (
     DateFromBiggerOrEqualDateToException,
     HotelNotFoundException,
     HotelHasRoomsException,
 )
+
 router = APIRouter(prefix="/hotels", tags=["hotels"])
 
 
@@ -83,11 +91,11 @@ async def update_hotel(db: DBDep, hotel_id: int, schema_update: HotelsWriteSchem
 
 
 @router.patch("/{hotel_id}", status_code=204)
-async def patch_hotel(
-    db: DBDep, hotel_id: int, schema_patch: HotelsPatchSchema
-):
+async def patch_hotel(db: DBDep, hotel_id: int, schema_patch: HotelsPatchSchema):
     try:
-        await HotelService(db).edit_hotel_partially(hotel_id=hotel_id, data=schema_patch)
+        await HotelService(db).edit_hotel_partially(
+            hotel_id=hotel_id, data=schema_patch
+        )
     except HotelNotFoundException:
         raise HotelNotFoundHTTPException
     return {"status": "Ok"}

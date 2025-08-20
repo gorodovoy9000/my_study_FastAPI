@@ -11,7 +11,11 @@ import pytest
 
 from bookings_study.api.dependencies import get_db
 from bookings_study.config import settings
-from bookings_study.database import Base, engine_null_pool, async_session_maker_null_pool
+from bookings_study.database import (
+    Base,
+    engine_null_pool,
+    async_session_maker_null_pool,
+)
 from bookings_study.main import app
 from bookings_study.schemas.facilities import FacilitiesWriteSchema
 from bookings_study.schemas.hotels import HotelsWriteSchema
@@ -52,7 +56,9 @@ async def setup_database(check_test_mode):
     # set schemas
     hotels_schema = [HotelsWriteSchema.model_validate(obj) for obj in hotels_data]
     rooms_schema = [RoomsWriteSchema.model_validate(obj) for obj in rooms_data]
-    facilities_schema = [FacilitiesWriteSchema.model_validate(obj) for obj in facilities_data]
+    facilities_schema = [
+        FacilitiesWriteSchema.model_validate(obj) for obj in facilities_data
+    ]
 
     # fill db
     async with DBManager(session_factory=async_session_maker_null_pool) as db_:

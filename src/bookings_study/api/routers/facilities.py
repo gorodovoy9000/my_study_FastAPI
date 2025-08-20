@@ -16,7 +16,9 @@ router = APIRouter(prefix="/facilities", tags=["facilities"])
 
 @router.get("")
 @cache(expire=5)
-async def get_facilities(db: DBDep, pagination: PaginationDep) -> list[FacilitiesSchema]:
+async def get_facilities(
+    db: DBDep, pagination: PaginationDep
+) -> list[FacilitiesSchema]:
     data = await FacilityService(db).get_facilities_all(
         limit=pagination.limit,
         offset=pagination.offset,
@@ -53,7 +55,9 @@ async def update_facility(
     db: DBDep, facility_id: int, data_update: FacilitiesWriteSchema
 ):
     try:
-        await FacilityService(db).edit_facility(facility_id=facility_id, data_update=data_update)
+        await FacilityService(db).edit_facility(
+            facility_id=facility_id, data_update=data_update
+        )
     except FacilityNotFoundException:
         raise FacilityNotFoundHTTPException
     return {"status": "Ok"}
@@ -64,7 +68,9 @@ async def partial_update_facility(
     db: DBDep, facility_id: int, data_update: FacilitiesPatchSchema
 ):
     try:
-        await FacilityService(db).edit_facility_partially(facility_id=facility_id, data_update=data_update)
+        await FacilityService(db).edit_facility_partially(
+            facility_id=facility_id, data_update=data_update
+        )
     except FacilityNotFoundException:
         raise FacilityNotFoundHTTPException
     return {"status": "Ok"}
