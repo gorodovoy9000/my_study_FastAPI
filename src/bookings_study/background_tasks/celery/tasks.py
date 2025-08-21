@@ -1,15 +1,15 @@
 import asyncio
-from datetime import datetime, timezone
 import logging
 import os
 from time import sleep
 
 from PIL import Image
 
+from bookings_study.config import settings
 from bookings_study.database import async_session_maker_null_pool
 from bookings_study.background_tasks.celery.app import celery_app
-from bookings_study.services.file_storage import MediaFileStorageService
 from bookings_study.utils.db_manager import DBManager
+from bookings_study.utils.file_manager import LocalFileManager
 
 
 @celery_app.task
@@ -24,12 +24,12 @@ def resize_image(original_filename: str, rel_path: str):
     logging.debug(
         f"Run background task resize_image with {original_filename=} and {rel_path=}"
     )
-    file_service = MediaFileStorageService()
+    file_manager = LocalFileManager(settings.LOCAL_MEDIA_ROOT)
 
     sizes = [300, 200, 100]
 
     # Open image
-    image_abs_path = file_service.get_abs_filepath(rel_path)
+    image_abs_path = file_manager.get_abs_filepath(rel_path)
     img = Image.open(image_abs_path)
 
     # Get image name and extension
@@ -44,15 +44,9 @@ def resize_image(original_filename: str, rel_path: str):
 
         # Build image new name
         new_filename = f"{name}_{size}px{ext}"
-        new_filename_obj = file_service.FilenameSchema(
-            original_filename=new_filename,
-            timestamp=datetime.now(timezone.utc).timestamp(),
-        )
 
         # New file absolute path
-        new_abs_path = file_service.get_abs_filepath(
-            new_filename_obj.storage_filename, not_found_err=False
-        )
+        new_abs_path = file_manager.build_abs_filepath_from_filename(new_filename)
 
         # Save image
         img_resized.save(new_abs_path)

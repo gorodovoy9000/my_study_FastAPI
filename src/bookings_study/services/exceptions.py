@@ -18,6 +18,15 @@ class UserLoginFailedException(AppBaseException):
     detail = "User login failed"
 
 
+# files exceptions
+class FilenameInvalidException(AppBaseException):
+    detail = "Filename invalid"
+
+
+class MediaFilenameInvalidException(AppBaseException):
+    detail = "Media filename invalid"
+
+
 # business entities exceptions
 class FacilitiesInvalidException(AppBaseException):
     detail = "Facilities invalid"
