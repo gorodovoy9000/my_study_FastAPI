@@ -9,7 +9,9 @@ RUN apt-get update -y && \
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 # make uv project environmet global
-ENV UV_PROJECT_ENVIRONMENT="/usr/local/"
+ENV UV_PROJECT_ENVIRONMENT="/app/.venv"
+# set venv into path
+ENV PATH=/app/.venv/bin:$PATH
 
 # cd to app root
 WORKDIR /app
