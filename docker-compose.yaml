@@ -1,0 +1,65 @@
+services:
+    db:
+        image: postgres:17
+        environment:
+            - POSTGRES_DB=${DB_NAME}
+            - POSTGRES_USER=${DB_USER}
+            - POSTGRES_PASSWORD=${DB_PASS}
+        ports:
+            - "${DB_PORT:-5432}:${DB_PORT:-5432}"
+        volumes:
+            - ./data/pgdb:/var/lib/postgresql/data
+
+    redis:
+        image: redis:8
+        ports:
+            - "${REDIS_PORT:-6379}:${REDIS_PORT:-6379}"
+        volumes:
+            - ./data/redis:/data
+
+    backend:
+        image: ${BACKEND_IMAGE}
+        env_file: ".env"
+        depends_on:
+            - db
+            - redis
+        expose:
+            - 8000
+        volumes:
+            - "./data/media_storage:${LOCAL_MEDIA_ROOT}"
+        command: >
+            bash -c "uvicorn bookings_study.main:app --host 0.0.0.0 --port 8000"
+
+    celery_worker:
+        image: ${BACKEND_IMAGE}
+        env_file: ".env"
+        depends_on:
+            - backend
+            - redis
+        volumes:
+            - "./data/media_storage:${LOCAL_MEDIA_ROOT}"
+        command: "celery --app=bookings_study.background_tasks.celery.app:celery_app worker -l INFO"
+
+    celery_beat:
+        image: ${BACKEND_IMAGE}
+        env_file: ".env"
+        depends_on:
+            - backend
+            - redis
+        volumes:
+            - "./data/media_storage:${LOCAL_MEDIA_ROOT}"
+        command: "celery --app=bookings_study.background_tasks.celery.app:celery_app beat -l INFO"
+
+    nginx:
+        image: nginx:1.28-alpine
+        environment:
+            - "LOCAL_MEDIA_ROOT=${LOCAL_MEDIA_ROOT}"
+        depends_on:
+            - backend
+            - celery_worker
+            - celery_beat
+        ports:
+            - "10000:10000"
+        volumes:
+            - "./data/media_storage:${LOCAL_MEDIA_ROOT}"
+            - ./nginx/templates/app.conf.template:/etc/nginx/templates/app.conf.template:ro

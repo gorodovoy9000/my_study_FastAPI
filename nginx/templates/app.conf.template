@@ -1,0 +1,44 @@
+server {
+    # listen 10000 ssl;
+    listen 10000;
+
+    # ssl certificate
+    # ssl_certificate /etc/nginx/ssl/fullchain.pem;
+    # ssl_certificate_key /etc/nginx/ssl/privkey.pem;
+
+    # server_name  *.parovoz.tv;
+
+    sendfile        on;
+    tcp_nopush      on;
+    tcp_nodelay     on;
+
+    # root on frontend server
+    # root /opt/static;
+
+    # ssl config
+    # ssl_protocols TLSv1.2 TLSv1.3;
+    # ssl_ciphers HIGH:!aNULL:!MD5;
+    # ssl_stapling on;
+    # ssl_stapling_verify on;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    # api and openapi docs on backend server
+    location /api {
+        proxy_pass http://backend:8000/api;
+    }
+    location /docs {
+        proxy_pass http://backend:8000/docs;
+    }
+    location /openapi.json {
+        proxy_pass http://backend:8000/openapi.json;
+    }
+
+    # serve media files only to internal
+    location /internal_media {
+        internal;
+        alias ${LOCAL_MEDIA_ROOT};
+    }
+}
