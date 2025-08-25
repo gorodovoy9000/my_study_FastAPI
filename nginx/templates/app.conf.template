@@ -6,8 +6,6 @@ server {
     # ssl_certificate /etc/nginx/ssl/fullchain.pem;
     # ssl_certificate_key /etc/nginx/ssl/privkey.pem;
 
-    # server_name  *.parovoz.tv;
-
     sendfile        on;
     tcp_nopush      on;
     tcp_nodelay     on;
