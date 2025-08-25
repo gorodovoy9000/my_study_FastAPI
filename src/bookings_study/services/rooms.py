@@ -1,7 +1,5 @@
 from datetime import date
 
-from sqlalchemy.exc import NoResultFound
-
 from bookings_study.repositories.exceptions import (
     NotFoundException,
     ForeignKeyException,
@@ -42,7 +40,7 @@ class RoomService(BaseService):
     async def get_room(self, room_id: int) -> RoomsRelsSchema:
         try:
             room = await self.db.rooms.get_one_with_rels(id=room_id)
-        except NoResultFound:
+        except NotFoundException:
             raise RoomNotFoundException
         return room
 
