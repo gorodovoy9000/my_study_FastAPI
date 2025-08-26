@@ -1,6 +1,7 @@
-from datetime import date
+from datetime import date, timedelta
+from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Query, status
 
 from bookings_study.services.exceptions import (
     DateFromBiggerOrEqualDateToException,
@@ -24,15 +25,15 @@ from bookings_study.schemas.relations import RoomsRelsSchema
 from bookings_study.services.rooms import RoomService
 
 # rooms linked to hotels
-router = APIRouter(prefix="/hotels", tags=["HotelRooms"])
+router = APIRouter(prefix="/rooms", tags=["Rooms"])
 
 
-@router.get("/{hotel_id}/rooms")
+@router.get("")
 async def get_rooms(
     db: DBDep,
     hotel_id: int,
-    date_from: date,
-    date_to: date,
+    date_from: Annotated[date, Query(examples=[date.today()])],
+    date_to: Annotated[date, Query(examples=[date.today() + timedelta(days=5)])],
 ) -> list[RoomsRelsSchema]:
     try:
         data = await RoomService(db).get_rooms_filtered(
@@ -43,18 +44,8 @@ async def get_rooms(
     return data
 
 
-@router.get("/{hotel_id}/rooms/{room_id}")
-async def get_room(db: DBDep, hotel_id: int, room_id: int) -> RoomsRelsSchema:
-    # todo redundant hotel_id, when we have room_id which is primary_key
-    try:
-        data = await RoomService(db).get_room(room_id=room_id)
-    except RoomNotFoundException:
-        raise RoomNotFoundHTTPException
-    return data
-
-
-@router.post("/{hotel_id}/rooms", status_code=201)
-async def create_room(db: DBDep, hotel_id: int, request_data: RoomsRequestPostSchema):
+@router.post("", status_code=201)
+async def create_room(db: DBDep, request_data: RoomsRequestPostSchema):
     try:
         data = await RoomService(db).add_room(request_data=request_data)
     except HotelNotFoundException:
@@ -64,9 +55,17 @@ async def create_room(db: DBDep, hotel_id: int, request_data: RoomsRequestPostSc
     return {"status": "Ok", "data": data}
 
 
-@router.delete("/{hotel_id}/rooms/{room_id}", status_code=204)
-async def delete_room(db: DBDep, hotel_id: int, room_id: int):
-    # todo redundant hotel_id, when we have room_id which is primary_key
+@router.get("/{room_id}")
+async def get_room(db: DBDep, room_id: int) -> RoomsRelsSchema:
+    try:
+        data = await RoomService(db).get_room(room_id=room_id)
+    except RoomNotFoundException:
+        raise RoomNotFoundHTTPException
+    return data
+
+
+@router.delete("/{room_id}", status_code=204)
+async def delete_room(db: DBDep, room_id: int):
     try:
         await RoomService(db).delete_room(room_id=room_id)
     except RoomNotFoundException:
@@ -77,11 +76,10 @@ async def delete_room(db: DBDep, hotel_id: int, room_id: int):
     return {"status": "Ok"}
 
 
-@router.put("/{hotel_id}/rooms/{room_id}", status_code=204)
+@router.put("/{room_id}", status_code=204)
 async def update_room(
-    db: DBDep, hotel_id: int, room_id: int, request_data: RoomsRequestPostSchema
+    db: DBDep, room_id: int, request_data: RoomsRequestPostSchema
 ):
-    # todo redundant hotel_id, when we have room_id which is primary_key
     try:
         await RoomService(db).edit_room(room_id=room_id, request_data=request_data)
     except RoomNotFoundException:
@@ -93,11 +91,10 @@ async def update_room(
     return {"status": "Ok"}
 
 
-@router.patch("/{hotel_id}/rooms/{room_id}", status_code=204)
+@router.patch("/{room_id}", status_code=204)
 async def partial_update_room(
-    db: DBDep, hotel_id: int, room_id: int, request_data: RoomsRequestPatchSchema
+    db: DBDep, room_id: int, request_data: RoomsRequestPatchSchema
 ):
-    # todo redundant hotel_id, when we have room_id which is primary_key
     try:
         await RoomService(db).edit_room_partially(
             room_id=room_id, request_data=request_data
