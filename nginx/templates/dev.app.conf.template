@@ -1,6 +1,8 @@
 server {
     listen 9000;
     server_name localhost;
+    # root path
+    root /app/static;
     # api and openapi docs on backend server
     location /api {
         proxy_pass http://backend:8000/api;
@@ -11,7 +13,6 @@ server {
     location /openapi.json {
         proxy_pass http://backend:8000/openapi.json;
     }
-    # root path
     # serve media files to anyone
     location /open_media {
         alias ${LOCAL_MEDIA_ROOT};
