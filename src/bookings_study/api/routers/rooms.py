@@ -10,6 +10,7 @@ from bookings_study.services.exceptions import (
     RoomNotFoundException,
     RoomHasBookingsException,
 )
+from bookings_study.api.examples import start_date_examples, end_date_examples
 from bookings_study.api.exceptions import (
     DateFromBiggerOrEqualDateToHTTPException,
     FacilitiesInvalidHTTPException,
@@ -32,8 +33,8 @@ router = APIRouter(prefix="/rooms", tags=["Rooms"])
 async def get_rooms(
     db: DBDep,
     hotel_id: int,
-    date_from: Annotated[date, Query(examples=[date.today()])],
-    date_to: Annotated[date, Query(examples=[date.today() + timedelta(days=5)])],
+    date_from: Annotated[date, Query(openapi_examples=start_date_examples)],
+    date_to: Annotated[date, Query(openapi_examples=end_date_examples)],
 ) -> list[RoomsRelsSchema]:
     try:
         data = await RoomService(db).get_rooms_filtered(

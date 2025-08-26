@@ -5,6 +5,7 @@ from fastapi import APIRouter, Query, HTTPException, status
 from fastapi_cache.decorator import cache
 
 from bookings_study.api.dependencies import DBDep, PaginationDep
+from bookings_study.api.examples import start_date_examples, end_date_examples
 from bookings_study.api.exceptions import (
     DateFromBiggerOrEqualDateToHTTPException,
     HotelNotFoundHTTPException,
@@ -29,8 +30,8 @@ router = APIRouter(prefix="/hotels", tags=["hotels"])
 async def get_hotels(
     db: DBDep,
     pagination: PaginationDep,
-    date_from: date,
-    date_to: date,
+    date_from: Annotated[date, Query(openapi_examples=start_date_examples)],
+    date_to: Annotated[date, Query(openapi_examples=end_date_examples)],
     title: Annotated[
         str | None, Query(description="Filter by substring hotel title")
     ] = None,
