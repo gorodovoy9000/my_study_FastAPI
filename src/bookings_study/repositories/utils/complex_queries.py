@@ -47,8 +47,6 @@ def query_vacant_rooms(
     # filter by hotel id if presented
     if hotel_id:
         query_rooms_ids = query_rooms_ids.filter_by(hotel_id=hotel_id)
-    # label as subquery
-    query_rooms_ids = query_rooms_ids.subquery(name="rooms_ids_of_hotel")
 
     # resulting rooms query
     vacant_rooms_ids = (
