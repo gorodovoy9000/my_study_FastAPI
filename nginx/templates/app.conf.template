@@ -11,7 +11,7 @@ server {
     tcp_nodelay     on;
 
     # root on frontend server
-    # root /opt/static;
+    root /app/static;
 
     # ssl config
     # ssl_protocols TLSv1.2 TLSv1.3;

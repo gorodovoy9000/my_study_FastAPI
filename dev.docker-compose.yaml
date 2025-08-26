@@ -80,7 +80,7 @@ services:
         volumes:
             - "dev_media:${LOCAL_MEDIA_ROOT}"
             - ./nginx/templates/dev.app.conf.template:/etc/nginx/templates/dev.app.conf.template:ro
-            - ./frontend:/app/static
+            - ./frontend:/app/static:ro
 
 volumes:
     dev_media:

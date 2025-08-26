@@ -63,3 +63,4 @@ services:
         volumes:
             - "./data/media_storage:${LOCAL_MEDIA_ROOT}"
             - ./nginx/templates/app.conf.template:/etc/nginx/templates/app.conf.template:ro
+            - ./frontend:/app/static:ro
