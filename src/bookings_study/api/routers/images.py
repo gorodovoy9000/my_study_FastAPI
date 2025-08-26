@@ -9,13 +9,13 @@ from bookings_study.utils.responses import build_protected_file_redirect_respons
 router = APIRouter(prefix="/images", tags=["Images"])
 
 
-@router.get("/{filepath:path}")
+@router.get("/{filepath:path}", description="Download via redirect to NGINX")
 def get_image(filepath: str):
     # return special redirect response for NGINX
     return build_protected_file_redirect_response(filepath)
 
 
-@router.post("")
+@router.post("", description="Upload via FastAPI")
 def upload_image(file: UploadFile):
     filename = file.filename
     file_object = file.file

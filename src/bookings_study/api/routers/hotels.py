@@ -25,7 +25,7 @@ from bookings_study.services.exceptions import (
 router = APIRouter(prefix="/hotels", tags=["hotels"])
 
 
-@router.get("")
+@router.get("", description="Get vacant hotels by date interval")
 @cache(expire=5)
 async def get_hotels(
     db: DBDep,

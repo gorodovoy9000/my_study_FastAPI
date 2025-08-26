@@ -20,13 +20,13 @@ from bookings_study.schemas.bookings import (
 router = APIRouter(prefix="/bookings", tags=["bookings"])
 
 
-@router.get("")
+@router.get("", description="Get all bookings")
 async def get_all_bookings(db: DBDep) -> list[BookingsSchema]:
     data = await BookingsService(db).get_bookings_all()
     return data
 
 
-@router.get("/me")
+@router.get("/me", description="Get my bookings")
 async def get_my_bookings(db: DBDep, user_id: UserIdDep) -> list[BookingsSchema]:
     data = await db.bookings.get_many_filtered(user_id=user_id)
     return data

@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date
 from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Query, status
@@ -29,7 +29,7 @@ from bookings_study.services.rooms import RoomService
 router = APIRouter(prefix="/rooms", tags=["Rooms"])
 
 
-@router.get("")
+@router.get("", description="Get vacant rooms by hotel and date interval")
 async def get_rooms(
     db: DBDep,
     hotel_id: int,

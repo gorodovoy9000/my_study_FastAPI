@@ -32,7 +32,7 @@ async def logout_user(user_id: UserIdDep, response: Response):
     return {"status": "Ok"}
 
 
-@router.post("/register", status_code=201)
+@router.post("/register", status_code=201, description="Register a new user")
 async def register_user(db: DBDep, data_register: UsersRegisterSchema):
     try:
         await AuthService(db).register_user(data_register)
@@ -44,7 +44,7 @@ async def register_user(db: DBDep, data_register: UsersRegisterSchema):
     return {"status": "Ok"}
 
 
-@router.get("/me")
+@router.get("/me", description="Get my user")
 async def current_user(db: DBDep, user_id: UserIdDep):
     try:
         user = await AuthService(db).get_user(user_id)

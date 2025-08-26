@@ -14,7 +14,7 @@ from bookings_study.schemas.facilities import (
 router = APIRouter(prefix="/facilities", tags=["facilities"])
 
 
-@router.get("")
+@router.get("", description="Get all facilities")
 @cache(expire=5)
 async def get_facilities(
     db: DBDep, pagination: PaginationDep
