@@ -13,3 +13,9 @@ end_date_examples = {
     "next_7_days": Example(summary="Next 7 days", value=date.today() + timedelta(days=7)),
     "next_10_days": Example(summary="Next 10 days", value=date.today() + timedelta(days=10)),
 }
+
+# hotels examples
+hotels_examples = {
+    "red_star": Example(summary="Red Star", value={"title": "red_star", "location": "Moscow"}),
+    "golden": Example(summary="Golden", value={"title": "golden", "location": "Dubai"})
+}

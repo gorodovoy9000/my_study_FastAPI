@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Annotated
 
-from fastapi import APIRouter, Query, HTTPException, status
+from fastapi import APIRouter, Body, Query, HTTPException, status
 from fastapi_cache.decorator import cache
 
 from bookings_study.api.dependencies import DBDep, PaginationDep
@@ -10,6 +10,7 @@ from bookings_study.api.exceptions import (
     DateFromBiggerOrEqualDateToHTTPException,
     HotelNotFoundHTTPException,
 )
+from bookings_study.api.examples import hotels_examples
 from bookings_study.schemas.base import BaseResponseSchema
 from bookings_study.schemas.hotels import (
     HotelsPatchSchema,
@@ -64,7 +65,7 @@ async def get_hotel(db: DBDep, hotel_id: int) -> HotelsResponseSchema:
 
 
 @router.post("")
-async def create_hotel(db: DBDep, schema_create: HotelsWriteSchema) -> HotelsResponseSchema:
+async def create_hotel(db: DBDep, schema_create: HotelsWriteSchema = Body(openapi_examples=hotels_examples)) -> HotelsResponseSchema:
     data = await HotelService(db).add_hotel(schema_create)
     return HotelsResponseSchema(data=[data])
 
@@ -84,7 +85,7 @@ async def delete_hotel(db: DBDep, hotel_id: int) -> BaseResponseSchema:
 
 
 @router.put("/{hotel_id}")
-async def update_hotel(db: DBDep, hotel_id: int, schema_update: HotelsWriteSchema) -> BaseResponseSchema:
+async def update_hotel(db: DBDep, hotel_id: int, schema_update: HotelsWriteSchema = Body(openapi_examples=hotels_examples)) -> BaseResponseSchema:
     try:
         await HotelService(db).edit_hotel(hotel_id=hotel_id, data=schema_update)
     except HotelNotFoundException:
@@ -93,7 +94,7 @@ async def update_hotel(db: DBDep, hotel_id: int, schema_update: HotelsWriteSchem
 
 
 @router.patch("/{hotel_id}")
-async def patch_hotel(db: DBDep, hotel_id: int, schema_patch: HotelsPatchSchema) -> BaseResponseSchema:
+async def patch_hotel(db: DBDep, hotel_id: int, schema_patch: HotelsPatchSchema = Body(openapi_examples=hotels_examples)) -> BaseResponseSchema:
     try:
         await HotelService(db).edit_hotel_partially(
             hotel_id=hotel_id, data=schema_patch
