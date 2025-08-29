@@ -47,6 +47,11 @@ class HotelAlreadyExistsHTTPException(AppBaseHTTPException):
     detail = "Hotel with this title and location already exists"
 
 
+class RoomAlreadyExistsHTTPException(AppBaseHTTPException):
+    status_code = status.HTTP_409_CONFLICT
+    detail = "Room with this hotel_id and title already exists"
+
+
 # common not found exceptions
 class NotFoundHTTPException(AppBaseHTTPException):
     status_code = status.HTTP_404_NOT_FOUND

@@ -3,6 +3,7 @@ from datetime import date
 from bookings_study.repositories.exceptions import (
     NotFoundException,
     ForeignKeyException,
+    UniqueValueException,
 )
 from bookings_study.schemas.relations import RoomsRelsSchema
 from bookings_study.schemas.rooms import (
@@ -15,6 +16,7 @@ from bookings_study.schemas.rooms import (
 from bookings_study.services.base import BaseService
 from bookings_study.services.exceptions import (
     HotelNotFoundException,
+    RoomAlreadyExistsException,
     RoomHasBookingsException,
     RoomNotFoundException,
     FacilitiesInvalidException,
@@ -49,6 +51,8 @@ class RoomService(BaseService):
         create_data = RoomsWriteSchema(**request_data.model_dump())
         try:
             data = await self.db.rooms.add(create_data)
+        except UniqueValueException:
+            raise RoomAlreadyExistsException
         except ForeignKeyException as err:
             raise HotelNotFoundException from err
         # add facilities to room by their ids
@@ -106,6 +110,8 @@ class RoomService(BaseService):
             await self.db.rooms.edit(data, id=room_id, partial_update=partial_update)
         except NotFoundException as err:
             raise RoomNotFoundException from err
+        except UniqueValueException as err:
+            raise RoomAlreadyExistsException from err
         except ForeignKeyException as err:
             raise HotelNotFoundException from err
 

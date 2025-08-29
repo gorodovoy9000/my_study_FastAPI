@@ -7,6 +7,7 @@ from bookings_study.services.exceptions import (
     DateFromBiggerOrEqualDateToException,
     FacilitiesInvalidException,
     HotelNotFoundException,
+    RoomAlreadyExistsException,
     RoomNotFoundException,
     RoomHasBookingsException,
 )
@@ -15,6 +16,7 @@ from bookings_study.api.exceptions import (
     DateFromBiggerOrEqualDateToHTTPException,
     FacilitiesInvalidHTTPException,
     HotelNotFoundHTTPException,
+    RoomAlreadyExistsHTTPException,
     RoomNotFoundHTTPException,
 )
 from bookings_study.api.dependencies import DBDep
@@ -51,6 +53,8 @@ async def get_rooms(
 async def create_room(db: DBDep, request_data: RoomsRequestPostSchema = Body(openapi_examples=rooms_examples)) -> RoomsResponseSchema:
     try:
         data = await RoomService(db).add_room(request_data=request_data)
+    except RoomAlreadyExistsException:
+        raise RoomAlreadyExistsHTTPException
     except HotelNotFoundException:
         raise HotelNotFoundHTTPException
     except FacilitiesInvalidException:
@@ -87,6 +91,8 @@ async def update_room(
         await RoomService(db).edit_room(room_id=room_id, request_data=request_data)
     except RoomNotFoundException:
         raise RoomNotFoundHTTPException
+    except RoomAlreadyExistsException:
+        raise RoomAlreadyExistsHTTPException
     except HotelNotFoundHTTPException:
         raise HotelNotFoundHTTPException
     except FacilitiesInvalidHTTPException:
@@ -104,6 +110,8 @@ async def partial_update_room(
         )
     except RoomNotFoundException:
         raise RoomNotFoundHTTPException
+    except RoomAlreadyExistsException:
+        raise RoomAlreadyExistsHTTPException
     except HotelNotFoundHTTPException:
         raise HotelNotFoundHTTPException
     except FacilitiesInvalidHTTPException:
