@@ -42,6 +42,11 @@ class FacilitiesInvalidHTTPException(AppBaseHTTPException):
     detail = "Facilities invalid"
 
 
+class HotelAlreadyExistsHTTPException(AppBaseHTTPException):
+    status_code = status.HTTP_409_CONFLICT
+    detail = "Hotel with this title and location already exists"
+
+
 # common not found exceptions
 class NotFoundHTTPException(AppBaseHTTPException):
     status_code = status.HTTP_404_NOT_FOUND

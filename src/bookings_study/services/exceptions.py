@@ -52,6 +52,10 @@ class RoomNotFoundException(AppBaseException):
     detail = "Room not found"
 
 
+class HotelAlreadyExistsException(AppBaseException):
+    detail = "Hotel already exists"
+
+
 class UserNotFoundException(AppBaseException):
     detail = "User not found"
 

@@ -8,6 +8,7 @@ from bookings_study.api.dependencies import DBDep, PaginationDep
 from bookings_study.api.examples import start_date_examples, end_date_examples
 from bookings_study.api.exceptions import (
     DateFromBiggerOrEqualDateToHTTPException,
+    HotelAlreadyExistsHTTPException,
     HotelNotFoundHTTPException,
 )
 from bookings_study.api.examples import hotels_examples
@@ -20,6 +21,7 @@ from bookings_study.schemas.hotels import (
 from bookings_study.services.hotels import HotelService
 from bookings_study.services.exceptions import (
     DateFromBiggerOrEqualDateToException,
+    HotelAlreadyExistsException,
     HotelNotFoundException,
     HotelHasRoomsException,
 )
@@ -66,7 +68,10 @@ async def get_hotel(db: DBDep, hotel_id: int) -> HotelsResponseSchema:
 
 @router.post("")
 async def create_hotel(db: DBDep, schema_create: HotelsWriteSchema = Body(openapi_examples=hotels_examples)) -> HotelsResponseSchema:
-    data = await HotelService(db).add_hotel(schema_create)
+    try:
+        data = await HotelService(db).add_hotel(schema_create)
+    except HotelAlreadyExistsException:
+        raise HotelAlreadyExistsHTTPException
     return HotelsResponseSchema(data=[data])
 
 
@@ -90,6 +95,8 @@ async def update_hotel(db: DBDep, hotel_id: int, schema_update: HotelsWriteSchem
         await HotelService(db).edit_hotel(hotel_id=hotel_id, data=schema_update)
     except HotelNotFoundException:
         raise HotelNotFoundHTTPException
+    except HotelAlreadyExistsException:
+        raise HotelAlreadyExistsHTTPException
     return BaseResponseSchema()
 
 
@@ -101,4 +108,6 @@ async def patch_hotel(db: DBDep, hotel_id: int, schema_patch: HotelsPatchSchema 
         )
     except HotelNotFoundException:
         raise HotelNotFoundHTTPException
+    except HotelAlreadyExistsException:
+        raise HotelAlreadyExistsHTTPException
     return BaseResponseSchema()

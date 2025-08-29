@@ -3,6 +3,7 @@ from datetime import date
 from bookings_study.repositories.exceptions import (
     ForeignKeyException,
     NotFoundException,
+    UniqueValueException,
 )
 from bookings_study.schemas.hotels import (
     HotelsWriteSchema,
@@ -11,6 +12,7 @@ from bookings_study.schemas.hotels import (
 )
 from bookings_study.services.base import BaseService
 from bookings_study.services.exceptions import (
+    HotelAlreadyExistsException,
     HotelNotFoundException,
     HotelHasRoomsException,
 )
@@ -46,7 +48,10 @@ class HotelService(BaseService):
         return hotel
 
     async def add_hotel(self, data: HotelsWriteSchema) -> HotelsSchema:
-        hotel = await self.db.hotels.add(data)
+        try:
+            hotel = await self.db.hotels.add(data)
+        except UniqueValueException as err:
+            raise HotelAlreadyExistsException from err
         await self.db.commit()
         return hotel
 
@@ -55,6 +60,8 @@ class HotelService(BaseService):
             await self.db.hotels.edit(data, id=hotel_id)
         except NotFoundException as err:
             raise HotelNotFoundException from err
+        except UniqueValueException as err:
+            raise HotelAlreadyExistsException from err
         await self.db.commit()
 
     async def edit_hotel_partially(
@@ -64,6 +71,8 @@ class HotelService(BaseService):
             await self.db.hotels.edit(data, partial_update=True, id=hotel_id)
         except NotFoundException as err:
             raise HotelNotFoundException from err
+        except UniqueValueException as err:
+            raise HotelAlreadyExistsException from err
         await self.db.commit()
 
     async def delete_hotel(self, hotel_id: int) -> None:
