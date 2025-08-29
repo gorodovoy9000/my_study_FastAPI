@@ -12,7 +12,7 @@ from bookings_study.services.exceptions import (
     RoomNotFoundException,
     NoVacantRoomsException,
 )
-from bookings_study.services.utils import validate_date_to_is_bigger_than_date_from
+from bookings_study.services.utils import validate_date_to_is_bigger_than_date_from, validate_booking_length
 
 
 class BookingsService(BaseService):
@@ -28,6 +28,9 @@ class BookingsService(BaseService):
         self, user_id: int, request_data: BookingsRequestSchema
     ) -> BookingsSchema:
         validate_date_to_is_bigger_than_date_from(
+            date_from=request_data.date_from, date_to=request_data.date_to
+        )
+        validate_booking_length(
             date_from=request_data.date_from, date_to=request_data.date_to
         )
         # get room

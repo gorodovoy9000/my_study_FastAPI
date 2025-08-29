@@ -26,6 +26,11 @@ class MediaFilenameInvalidHTTPException(AppBaseHTTPException):
               "Only allowed lower latin letters(a-z), digits, underscore(_) and extension after dot(.) "
               "Examples: image1.png, some_image.jpg etc")
 
+# business logic exceptions
+class BookingIsTooLongHTTPException(AppBaseHTTPException):
+    status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
+    detail = "booking period is more than 180 days which is maximum"
+
 
 class DateFromBiggerOrEqualDateToHTTPException(AppBaseHTTPException):
     status_code = status.HTTP_422_UNPROCESSABLE_ENTITY

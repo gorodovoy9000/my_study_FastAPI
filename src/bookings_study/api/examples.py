@@ -14,6 +14,25 @@ end_date_examples = {
     "next_10_days": Example(summary="Next 10 days", value=date.today() + timedelta(days=10)),
 }
 
+# bookings example
+booking_examples = {
+    "book_on_1_day": Example(summary="Book On 1 Day", value={
+        "room_id": 1,
+        "date_from": date.today(),
+        "date_to": date.today() + timedelta(days=1),
+    }),
+    "book_on_5_days": Example(summary="Book On 5 Days", value={
+        "room_id": 1,
+        "date_from": date.today(),
+        "date_to": date.today() + timedelta(days=5),
+    }),
+    "book_on_7_days": Example(summary="Book On 7 Days", value={
+        "room_id": 1,
+        "date_from": date.today(),
+        "date_to": date.today() + timedelta(days=7),
+    }),
+}
+
 # hotels examples
 hotels_examples = {
     "red_star": Example(summary="Red Star", value={"title": "red_star", "location": "Moscow"}),

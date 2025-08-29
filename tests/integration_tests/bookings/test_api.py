@@ -75,5 +75,6 @@ async def test_add_and_get_bookings(
     response = await authenticated_ac.get("/api/bookings/me")
     assert response.is_success
     response_payload = response.json()
-    assert isinstance(response_payload, list)
-    assert len(response_payload) == my_bookings_count
+    data = response_payload["data"]
+    assert isinstance(data, list)
+    assert len(data) == my_bookings_count

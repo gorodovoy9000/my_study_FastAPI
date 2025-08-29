@@ -57,6 +57,10 @@ class UserNotFoundException(AppBaseException):
 
 
 # business logic exceptions
+class BookingIsTooLongException(AppBaseException):
+    detail = "Booking is too long"
+
+
 class DateFromBiggerOrEqualDateToException(AppBaseException):
     detail = "Field date_from is bigger or equal to field date_to"
 

@@ -2,6 +2,8 @@ from datetime import date
 
 from pydantic import BaseModel
 
+from bookings_study.schemas.base import BaseResponseSchema
+
 
 class BookingsBaseSchema(BaseModel):
     room_id: int
@@ -23,3 +25,7 @@ class BookingsWriteSchema(BookingsBaseSchema):
 
 class BookingsSchema(BookingsBaseSchema):
     id: int
+
+
+class BookingsResponseSchema(BaseResponseSchema):
+    data: list[BookingsSchema]
