@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Body, HTTPException, status
 
-from bookings_study.api.dependencies import DBDep, UserIdDep
-from bookings_study.api.exceptions import (
+from bookings_study.api.v1.dependencies import DBDep, UserIdDep
+from bookings_study.api.v1.exceptions import (
     BookingIsTooLongHTTPException,
     DateFromBiggerOrEqualDateToHTTPException,
     RoomNotFoundHTTPException,
 )
-from bookings_study.api.examples import booking_examples
+from bookings_study.api.v1.examples import booking_examples
 from bookings_study.services.bookings import BookingsService
 from bookings_study.services.exceptions import (
     BookingIsTooLongException,

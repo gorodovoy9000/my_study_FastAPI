@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Body
 from fastapi_cache.decorator import cache
 
-from bookings_study.api.dependencies import DBDep, PaginationDep
-from bookings_study.api.examples import facilities_examples
-from bookings_study.api.exceptions import (
+from bookings_study.api.v1.dependencies import DBDep, PaginationDep
+from bookings_study.api.v1.examples import facilities_examples
+from bookings_study.api.v1.exceptions import (
     FacilityAlreadyExistsHTTPException,
     FacilityNotFoundHTTPException
 )

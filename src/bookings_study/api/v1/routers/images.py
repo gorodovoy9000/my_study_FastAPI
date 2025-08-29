@@ -1,7 +1,7 @@
 from fastapi import APIRouter, UploadFile
 
-from bookings_study.api.dependencies import UserIdDep
-from bookings_study.api.exceptions import MediaFilenameInvalidHTTPException
+from bookings_study.api.v1.dependencies import UserIdDep
+from bookings_study.api.v1.exceptions import MediaFilenameInvalidHTTPException
 from bookings_study.services.file_storage import MediaFileStorageService
 from bookings_study.services.exceptions import MediaFilenameInvalidException
 from bookings_study.background_tasks.celery.tasks import resize_image

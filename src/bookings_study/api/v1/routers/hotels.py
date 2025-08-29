@@ -4,14 +4,14 @@ from typing import Annotated
 from fastapi import APIRouter, Body, Query, HTTPException, status
 from fastapi_cache.decorator import cache
 
-from bookings_study.api.dependencies import DBDep, PaginationDep
-from bookings_study.api.examples import start_date_examples, end_date_examples
-from bookings_study.api.exceptions import (
+from bookings_study.api.v1.dependencies import DBDep, PaginationDep
+from bookings_study.api.v1.examples import start_date_examples, end_date_examples
+from bookings_study.api.v1.exceptions import (
     DateFromBiggerOrEqualDateToHTTPException,
     HotelAlreadyExistsHTTPException,
     HotelNotFoundHTTPException,
 )
-from bookings_study.api.examples import hotels_examples
+from bookings_study.api.v1.examples import hotels_examples
 from bookings_study.schemas.base import BaseResponseSchema
 from bookings_study.schemas.hotels import (
     HotelsPatchSchema,

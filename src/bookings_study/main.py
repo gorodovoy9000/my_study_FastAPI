@@ -7,7 +7,7 @@ from fastapi_cache.backends.redis import RedisBackend
 
 from bookings_study.bootstrap import redis_connector
 from bookings_study.config import settings
-from bookings_study.api.routers import main_router
+from bookings_study.api.v1.routers import main_router
 
 
 if settings.MODE == "PROD":

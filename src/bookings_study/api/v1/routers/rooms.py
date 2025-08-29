@@ -11,15 +11,15 @@ from bookings_study.services.exceptions import (
     RoomNotFoundException,
     RoomHasBookingsException,
 )
-from bookings_study.api.examples import start_date_examples, end_date_examples, rooms_examples
-from bookings_study.api.exceptions import (
+from bookings_study.api.v1.examples import start_date_examples, end_date_examples, rooms_examples
+from bookings_study.api.v1.exceptions import (
     DateFromBiggerOrEqualDateToHTTPException,
     FacilitiesInvalidHTTPException,
     HotelNotFoundHTTPException,
     RoomAlreadyExistsHTTPException,
     RoomNotFoundHTTPException,
 )
-from bookings_study.api.dependencies import DBDep
+from bookings_study.api.v1.dependencies import DBDep
 from bookings_study.schemas.base import BaseResponseSchema
 from bookings_study.schemas.rooms import (
     RoomsRequestPatchSchema,

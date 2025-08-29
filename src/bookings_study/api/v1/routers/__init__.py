@@ -1,14 +1,14 @@
 from fastapi import APIRouter
 
-from bookings_study.api.routers.auth import router as auth_router
-from bookings_study.api.routers.bookings import router as bookings_router
-from bookings_study.api.routers.facilities import router as facilities_router
-from bookings_study.api.routers.images import router as images_router
-from bookings_study.api.routers.hotels import router as hotels_router
-from bookings_study.api.routers.rooms import router as hotel_rooms_router
+from bookings_study.api.v1.routers.auth import router as auth_router
+from bookings_study.api.v1.routers.bookings import router as bookings_router
+from bookings_study.api.v1.routers.facilities import router as facilities_router
+from bookings_study.api.v1.routers.images import router as images_router
+from bookings_study.api.v1.routers.hotels import router as hotels_router
+from bookings_study.api.v1.routers.rooms import router as hotel_rooms_router
 
 
-main_router = APIRouter(prefix="/api")
+main_router = APIRouter(prefix="/api/v1")
 # protected_router = APIRouter(dependencies=[AuthDep])
 protected_router = APIRouter()
 public_router = APIRouter()

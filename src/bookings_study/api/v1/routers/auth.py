@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Response
 from starlette import status
 
-from bookings_study.api.dependencies import DBDep, UserIdDep
+from bookings_study.api.v1.dependencies import DBDep, UserIdDep
 from bookings_study.schemas.users import UsersLoginSchema, UsersRegisterSchema
 from bookings_study.services.auth import AuthService
 from bookings_study.services.exceptions import (

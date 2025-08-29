@@ -9,7 +9,7 @@ mock.patch("fastapi_cache.decorator.cache", lambda *args, **kwargs: lambda f: f)
 from httpx import AsyncClient, ASGITransport
 import pytest
 
-from bookings_study.api.dependencies import get_db
+from bookings_study.api.v1.dependencies import get_db
 from bookings_study.config import settings
 from bookings_study.database import (
     Base,
@@ -73,7 +73,7 @@ async def setup_users(setup_database, ac):
     with open("tests/mock_users.json") as fo:
         data = json.load(fo)
     for obj in data:
-        response = await ac.post("/api/auth/register", json=obj)
+        response = await ac.post("/api/v1/auth/register", json=obj)
         assert response.is_success
 
 
@@ -95,7 +95,7 @@ async def ac() -> AsyncGenerator[AsyncClient, None]:
 @pytest.fixture(scope="session")
 async def authenticated_ac(setup_users, ac):
     data = {"email": "vasya@test.com", "password": "password2"}
-    response = await ac.post("/api/auth/login", json=data)
+    response = await ac.post("/api/v1/auth/login", json=data)
     assert response.is_success
     assert ac.cookies["access_token"]
     yield ac
