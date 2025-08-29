@@ -1,11 +1,17 @@
-from bookings_study.repositories.exceptions import NotFoundException
+from bookings_study.repositories.exceptions import (
+    NotFoundException,
+    UniqueValueException,
+)
 from bookings_study.schemas.facilities import (
     FacilitiesSchema,
     FacilitiesWriteSchema,
     FacilitiesPatchSchema,
 )
 from bookings_study.services.base import BaseService
-from bookings_study.services.exceptions import FacilityNotFoundException
+from bookings_study.services.exceptions import (
+    FacilityAlreadyExistsException,
+    FacilityNotFoundException
+)
 
 
 class FacilityService(BaseService):
@@ -23,7 +29,10 @@ class FacilityService(BaseService):
     async def add_facility(
         self, data_create: FacilitiesWriteSchema
     ) -> FacilitiesSchema:
-        data = await self.db.facilities.add(data_create)
+        try:
+            data = await self.db.facilities.add(data_create)
+        except UniqueValueException as err:
+            raise FacilityAlreadyExistsException from err
         await self.db.commit()
         return data
 
@@ -34,6 +43,8 @@ class FacilityService(BaseService):
             await self.db.facilities.edit(data_update, id=facility_id)
         except NotFoundException as err:
             raise FacilityNotFoundException from err
+        except UniqueValueException as err:
+            raise FacilityAlreadyExistsException from err
         await self.db.commit()
 
     async def edit_facility_partially(
@@ -45,6 +56,8 @@ class FacilityService(BaseService):
             )
         except NotFoundException as err:
             raise FacilityNotFoundException from err
+        except UniqueValueException as err:
+            raise FacilityAlreadyExistsException from err
         await self.db.commit()
 
     async def delete_facility(self, facility_id: int) -> None:

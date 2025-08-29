@@ -1,6 +1,6 @@
 import typing
 
-from sqlalchemy import String
+from sqlalchemy import String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from bookings_study.database import Base
@@ -17,4 +17,11 @@ class FacilitiesOrm(Base):
     # relations
     rooms: Mapped[list["RoomsOrm"]] = relationship(
         secondary="facilities_rooms_at", back_populates="facilities"
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            "title",
+            name="uc_facilities-title"
+        ),
     )

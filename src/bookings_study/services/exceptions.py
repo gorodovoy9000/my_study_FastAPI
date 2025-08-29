@@ -60,6 +60,10 @@ class RoomAlreadyExistsException(AppBaseException):
     detail = "Room already exists"
 
 
+class FacilityAlreadyExistsException(AppBaseException):
+    detail = "Facility already exists"
+
+
 class UserNotFoundException(AppBaseException):
     detail = "User not found"
 

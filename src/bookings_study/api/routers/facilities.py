@@ -1,10 +1,17 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Body
 from fastapi_cache.decorator import cache
 
 from bookings_study.api.dependencies import DBDep, PaginationDep
-from bookings_study.api.exceptions import FacilityNotFoundHTTPException
+from bookings_study.api.examples import facilities_examples
+from bookings_study.api.exceptions import (
+    FacilityAlreadyExistsHTTPException,
+    FacilityNotFoundHTTPException
+)
 from bookings_study.services.facilities import FacilityService
-from bookings_study.services.exceptions import FacilityNotFoundException
+from bookings_study.services.exceptions import (
+    FacilityAlreadyExistsException,
+    FacilityNotFoundException
+)
 from bookings_study.schemas.base import BaseResponseSchema
 from bookings_study.schemas.facilities import (
     FacilitiesPatchSchema,
@@ -37,8 +44,11 @@ async def get_facility(db: DBDep, facility_id: int) -> FacilitiesResponseSchema:
 
 
 @router.post("")
-async def create_facility(db: DBDep, data_create: FacilitiesWriteSchema) -> FacilitiesResponseSchema:
-    data = await FacilityService(db).add_facility(data_create)
+async def create_facility(db: DBDep, data_create: FacilitiesWriteSchema = Body(openapi_examples=facilities_examples)) -> FacilitiesResponseSchema:
+    try:
+        data = await FacilityService(db).add_facility(data_create)
+    except FacilityAlreadyExistsException:
+        raise FacilityAlreadyExistsHTTPException
     return FacilitiesResponseSchema(data=[data])
 
 
@@ -53,7 +63,7 @@ async def delete_facility(db: DBDep, facility_id: int) -> BaseResponseSchema:
 
 @router.put("/{facility_id}")
 async def update_facility(
-    db: DBDep, facility_id: int, data_update: FacilitiesWriteSchema
+    db: DBDep, facility_id: int, data_update: FacilitiesWriteSchema = Body(openapi_examples=facilities_examples)
 ) -> BaseResponseSchema:
     try:
         await FacilityService(db).edit_facility(
@@ -61,12 +71,14 @@ async def update_facility(
         )
     except FacilityNotFoundException:
         raise FacilityNotFoundHTTPException
+    except FacilityAlreadyExistsException:
+        raise FacilityAlreadyExistsHTTPException
     return BaseResponseSchema()
 
 
 @router.patch("/{facility_id}")
 async def partial_update_facility(
-    db: DBDep, facility_id: int, data_update: FacilitiesPatchSchema
+    db: DBDep, facility_id: int, data_update: FacilitiesPatchSchema = Body(openapi_examples=facilities_examples)
 ) -> BaseResponseSchema:
     try:
         await FacilityService(db).edit_facility_partially(
@@ -74,4 +86,6 @@ async def partial_update_facility(
         )
     except FacilityNotFoundException:
         raise FacilityNotFoundHTTPException
+    except FacilityAlreadyExistsException:
+        raise FacilityAlreadyExistsHTTPException
     return BaseResponseSchema()
