@@ -37,7 +37,6 @@ class AuthService(BaseService):
     async def register_user(self, data_register: UsersRegisterSchema):
         # build user to add schema
         schema_create = UsersAddSchema(
-            username=data_register.username,
             email=data_register.email,
             hashed_password=self.hash_password(data_register.password),
         )

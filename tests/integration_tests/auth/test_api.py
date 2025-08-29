@@ -2,21 +2,20 @@ import pytest
 
 
 @pytest.mark.parametrize(
-    "username, email, password",
+    "email, password",
     [
         # standard users
-        ("darth_vader", "best@syth.com", "red_saber"),
-        ("obi_van", "the-best@bright.com", "blue_saber"),
-        ("yoda", "old-timer@aol.com", "pass_insert_here"),
+        ("best@syth.com", "red_saber"),
+        ("the-best@bright.com", "blue_saber"),
+        ("old-timer@aol.com", "pass_insert_here"),
         # test email already taken
     ],
 )
-async def test_auth_flow(username, email, password, ac):
+async def test_auth_flow(email, password, ac):
     # register user
     response = await ac.post(
         "/api/auth/register",
         json={
-            "username": username,
             "email": email,
             "password": password,
         },
@@ -38,7 +37,6 @@ async def test_auth_flow(username, email, password, ac):
     response = await ac.get("/api/auth/me")
     assert response.is_success
     response_payload = response.json()
-    assert response_payload["username"] == username
     assert "id" in response_payload
     assert "password" not in response_payload
     assert "hashed_password" not in response_payload
@@ -57,7 +55,6 @@ async def test_already_registered(ac):
     response = await ac.post(
         "/api/auth/register",
         json={
-            "username": "emperor",
             "email": "best@syth.com",
             "password": "red_saber",
         },

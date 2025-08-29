@@ -1,13 +1,20 @@
-from pydantic import BaseModel, EmailStr
+from typing import Annotated
+
+from pydantic import AfterValidator, BaseModel, EmailStr
+
+
+def is_password_correct(value: str) -> str:
+    if len(value) < 8:
+        raise ValueError("Password must be at least 8 characters long")
+    return value
 
 
 class UsersBaseSchema(BaseModel):
-    username: str
     email: EmailStr
 
 
 class UsersRegisterSchema(UsersBaseSchema):
-    password: str
+    password: Annotated[str, AfterValidator(is_password_correct)]
 
 
 class UsersAddSchema(UsersBaseSchema):
