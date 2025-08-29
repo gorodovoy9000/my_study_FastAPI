@@ -35,13 +35,13 @@ async def get_facility(db: DBDep, facility_id: int) -> FacilitiesSchema:
     return data
 
 
-@router.post("", status_code=201)
+@router.post("")
 async def create_facility(db: DBDep, data_create: FacilitiesWriteSchema):
     data = await FacilityService(db).add_facility(data_create)
     return {"status": "Ok", "data": data}
 
 
-@router.delete("/{facility_id}", status_code=204)
+@router.delete("/{facility_id}")
 async def delete_facility(db: DBDep, facility_id: int):
     try:
         await FacilityService(db).delete_facility(facility_id=facility_id)
@@ -50,7 +50,7 @@ async def delete_facility(db: DBDep, facility_id: int):
     return {"status": "Ok"}
 
 
-@router.put("/{facility_id}", status_code=204)
+@router.put("/{facility_id}")
 async def update_facility(
     db: DBDep, facility_id: int, data_update: FacilitiesWriteSchema
 ):
@@ -63,7 +63,7 @@ async def update_facility(
     return {"status": "Ok"}
 
 
-@router.patch("/{facility_id}", status_code=204)
+@router.patch("/{facility_id}")
 async def partial_update_facility(
     db: DBDep, facility_id: int, data_update: FacilitiesPatchSchema
 ):

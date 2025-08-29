@@ -32,7 +32,7 @@ async def logout_user(user_id: UserIdDep, response: Response):
     return {"status": "Ok"}
 
 
-@router.post("/register", status_code=201, description="Register a new user")
+@router.post("/register", description="Register a new user")
 async def register_user(db: DBDep, data_register: UsersRegisterSchema):
     try:
         await AuthService(db).register_user(data_register)

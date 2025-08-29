@@ -32,7 +32,7 @@ async def get_my_bookings(db: DBDep, user_id: UserIdDep) -> list[BookingsSchema]
     return data
 
 
-@router.post("", status_code=201)
+@router.post("")
 async def create_booking(
     db: DBDep, user_id: UserIdDep, request_data: BookingsRequestSchema
 ):
