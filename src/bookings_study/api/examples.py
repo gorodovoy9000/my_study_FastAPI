@@ -19,3 +19,28 @@ hotels_examples = {
     "red_star": Example(summary="Red Star", value={"title": "red_star", "location": "Moscow"}),
     "golden": Example(summary="Golden", value={"title": "golden", "location": "Dubai"})
 }
+
+# rooms examples
+rooms_examples = {
+    "standard1": Example(summary="Standard 1", value={
+        "hotel_id": 1,
+        "title": "standard1",
+        "description": "Standard for 1 lone wolf",
+        "price": 4000,
+        "quantity": 8,
+    }),
+    "standard2": Example(summary="Standard 2", value={
+        "hotel_id": 1,
+        "title": "standard2",
+        "description": "Standard for 2 people",
+        "price": 4500,
+        "quantity": 8,
+    }),
+    "lux": Example(summary="Luxury", value={
+        "hotel_id": 1,
+        "title": "luxury",
+        "description": "Luxury number",
+        "price": 6500,
+        "quantity": 4,
+    })
+}

@@ -1,14 +1,12 @@
 from typing import Annotated
 
-from pydantic import AfterValidator, BaseModel
+from pydantic import BaseModel, Field
 
 from bookings_study.schemas.base import BasePatchSchema, BaseResponseSchema
-from bookings_study.schemas.utils.validators import is_string_not_empty
-
 
 class HotelsBaseSchema(BaseModel):
-    title: Annotated[str, AfterValidator(is_string_not_empty)]
-    location: Annotated[str, AfterValidator(is_string_not_empty)]
+    title: Annotated[str, Field(min_length=1)]
+    location: Annotated[str, Field(min_length=1)]
 
 
 class HotelsWriteSchema(HotelsBaseSchema):
@@ -16,8 +14,8 @@ class HotelsWriteSchema(HotelsBaseSchema):
 
 
 class HotelsPatchSchema(BasePatchSchema):
-    title: Annotated[str, AfterValidator(is_string_not_empty)] = None
-    location: Annotated[str, AfterValidator(is_string_not_empty)] = None
+    title: Annotated[str, Field(min_length=1)] = None
+    location: Annotated[str, Field(min_length=1)] = None
 
 
 class HotelsSchema(HotelsBaseSchema):

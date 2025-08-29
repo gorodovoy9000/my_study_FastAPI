@@ -1,18 +1,20 @@
+from typing import Annotated
+
 from pydantic import BaseModel, Field
 
-from bookings_study.schemas.base import BasePatchSchema
+from bookings_study.schemas.base import BasePatchSchema, BaseResponseSchema
 
 
 class RoomsBaseSchema(BaseModel):
-    hotel_id: int
-    title: str
+    hotel_id: Annotated[int, Field(gt=0)]
+    title: Annotated[str, Field(min_length=1)]
     description: str | None = None
-    price: int
-    quantity: int
+    price: Annotated[int, Field(gt=0)]
+    quantity: Annotated[int, Field(gt=0)]
 
 
 class RoomsRequestPostSchema(RoomsBaseSchema):
-    facilities_ids: list[int] = None
+    facilities_ids: list[Annotated[int, Field(gt=0)]] = None
 
 
 class RoomsWriteSchema(RoomsBaseSchema):
@@ -20,12 +22,12 @@ class RoomsWriteSchema(RoomsBaseSchema):
 
 
 class RoomsRequestPatchSchema(BasePatchSchema):
-    hotel_id: int = None
-    title: str = None
+    hotel_id: Annotated[int, Field(gt=0)] = None
+    title: Annotated[str, Field(min_length=1)] = None
     description: str | None = None
-    price: int = None
-    quantity: int = None
-    facilities_ids: list[int] = Field(None, exclude=True)
+    price: Annotated[int, Field(gt=0)] = None
+    quantity: Annotated[int, Field(gt=0)] = None
+    facilities_ids: list[Annotated[int, Field(gt=0)]] = Field(None, exclude=True)
 
 
 class RoomsPatchSchema(BasePatchSchema):
@@ -38,3 +40,6 @@ class RoomsPatchSchema(BasePatchSchema):
 
 class RoomsSchema(RoomsBaseSchema):
     id: int
+
+class RoomsResponseSchema(BaseResponseSchema):
+    data: list[RoomsSchema]
