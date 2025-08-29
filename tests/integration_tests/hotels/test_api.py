@@ -17,7 +17,7 @@ async def test_hotel_crud(ac):
     assert response.is_success
     response_data = response.json()
     assert isinstance(response_data, dict)
-    created_data = response_data["data"]
+    created_data = response_data["data"][0]
     assert created_data["title"] == post_data["title"]
 
     # get hotel

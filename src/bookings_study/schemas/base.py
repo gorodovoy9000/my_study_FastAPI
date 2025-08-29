@@ -9,3 +9,8 @@ class BasePatchSchema(BaseModel):
         if not data:
             raise ValueError("empty data is not allowed")
         return data
+
+
+class BaseResponseSchema(BaseModel):
+    """Base response payload structure"""
+    status: str = "Ok"

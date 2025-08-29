@@ -10,9 +10,10 @@ from bookings_study.api.exceptions import (
     DateFromBiggerOrEqualDateToHTTPException,
     HotelNotFoundHTTPException,
 )
+from bookings_study.schemas.base import BaseResponseSchema
 from bookings_study.schemas.hotels import (
-    HotelsSchema,
     HotelsPatchSchema,
+    HotelsResponseSchema,
     HotelsWriteSchema,
 )
 from bookings_study.services.hotels import HotelService
@@ -37,8 +38,8 @@ async def get_hotels(
     ] = None,
     location: Annotated[
         str | None, Query(description="Filter by substring hotel location")
-    ] = None,
-) -> list[HotelsSchema]:
+    ] = None
+) -> HotelsResponseSchema:
     try:
         data = await HotelService(db).get_hotels_filtered(
             date_from=date_from,
@@ -50,26 +51,26 @@ async def get_hotels(
         )
     except DateFromBiggerOrEqualDateToException:
         raise DateFromBiggerOrEqualDateToHTTPException
-    return data
+    return HotelsResponseSchema(data=data)
 
 
 @router.get("/{hotel_id}")
-async def get_hotel(db: DBDep, hotel_id: int) -> HotelsSchema:
+async def get_hotel(db: DBDep, hotel_id: int) -> HotelsResponseSchema:
     try:
         data = await HotelService(db).get_hotel(hotel_id=hotel_id)
     except HotelNotFoundException:
         raise HotelNotFoundHTTPException
-    return data
+    return HotelsResponseSchema(data=[data])
 
 
-@router.post("", status_code=201)
-async def create_hotel(db: DBDep, schema_create: HotelsWriteSchema):
+@router.post("")
+async def create_hotel(db: DBDep, schema_create: HotelsWriteSchema) -> HotelsResponseSchema:
     data = await HotelService(db).add_hotel(schema_create)
-    return {"status": "Ok", "data": data}
+    return HotelsResponseSchema(data=[data])
 
 
-@router.delete("/{hotel_id}", status_code=204)
-async def delete_hotel(db: DBDep, hotel_id: int):
+@router.delete("/{hotel_id}")
+async def delete_hotel(db: DBDep, hotel_id: int) -> BaseResponseSchema:
     try:
         await HotelService(db).delete_hotel(hotel_id=hotel_id)
     except HotelNotFoundException:
@@ -79,24 +80,24 @@ async def delete_hotel(db: DBDep, hotel_id: int):
             status_code=status.HTTP_409_CONFLICT,
             detail="Cannot delete hotel that has rooms",
         )
-    return {"status": "Ok"}
+    return BaseResponseSchema()
 
 
-@router.put("/{hotel_id}", status_code=204)
-async def update_hotel(db: DBDep, hotel_id: int, schema_update: HotelsWriteSchema):
+@router.put("/{hotel_id}")
+async def update_hotel(db: DBDep, hotel_id: int, schema_update: HotelsWriteSchema) -> BaseResponseSchema:
     try:
         await HotelService(db).edit_hotel(hotel_id=hotel_id, data=schema_update)
     except HotelNotFoundException:
         raise HotelNotFoundHTTPException
-    return {"status": "Ok"}
+    return BaseResponseSchema()
 
 
-@router.patch("/{hotel_id}", status_code=204)
-async def patch_hotel(db: DBDep, hotel_id: int, schema_patch: HotelsPatchSchema):
+@router.patch("/{hotel_id}")
+async def patch_hotel(db: DBDep, hotel_id: int, schema_patch: HotelsPatchSchema) -> BaseResponseSchema:
     try:
         await HotelService(db).edit_hotel_partially(
             hotel_id=hotel_id, data=schema_patch
         )
     except HotelNotFoundException:
         raise HotelNotFoundHTTPException
-    return {"status": "Ok"}
+    return BaseResponseSchema()
