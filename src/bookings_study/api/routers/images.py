@@ -1,5 +1,6 @@
 from fastapi import APIRouter, UploadFile
 
+from bookings_study.api.dependencies import UserIdDep
 from bookings_study.api.exceptions import MediaFilenameInvalidHTTPException
 from bookings_study.services.file_storage import MediaFileStorageService
 from bookings_study.services.exceptions import MediaFilenameInvalidException
@@ -10,13 +11,13 @@ router = APIRouter(prefix="/images", tags=["Images"])
 
 
 @router.get("/{filepath:path}", description="Download via redirect to NGINX")
-def get_image(filepath: str):
+def get_image(user_id: UserIdDep, filepath: str):
     # return special redirect response for NGINX
     return build_protected_file_redirect_response(filepath)
 
 
 @router.post("", description="Upload via FastAPI")
-def upload_image(file: UploadFile):
+def upload_image(user_id: UserIdDep, file: UploadFile):
     filename = file.filename
     file_object = file.file
     # write file and catch validation error
