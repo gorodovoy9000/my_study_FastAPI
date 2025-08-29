@@ -47,6 +47,7 @@ rooms_examples = {
         "description": "Standard for 1 lone wolf",
         "price": 4000,
         "quantity": 8,
+        "facilities_ids": [1],
     }),
     "standard2": Example(summary="Standard 2", value={
         "hotel_id": 1,
@@ -54,6 +55,7 @@ rooms_examples = {
         "description": "Standard for 2 people",
         "price": 4500,
         "quantity": 8,
+        "facilities_ids": [1],
     }),
     "lux": Example(summary="Luxury", value={
         "hotel_id": 1,
@@ -61,6 +63,7 @@ rooms_examples = {
         "description": "Luxury number",
         "price": 6500,
         "quantity": 4,
+        "facilities_ids": [1],
     })
 }
 

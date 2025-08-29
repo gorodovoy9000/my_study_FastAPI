@@ -93,9 +93,9 @@ async def update_room(
         raise RoomNotFoundHTTPException
     except RoomAlreadyExistsException:
         raise RoomAlreadyExistsHTTPException
-    except HotelNotFoundHTTPException:
+    except HotelNotFoundException:
         raise HotelNotFoundHTTPException
-    except FacilitiesInvalidHTTPException:
+    except FacilitiesInvalidException:
         raise FacilitiesInvalidHTTPException
     return BaseResponseSchema()
 
@@ -112,8 +112,8 @@ async def partial_update_room(
         raise RoomNotFoundHTTPException
     except RoomAlreadyExistsException:
         raise RoomAlreadyExistsHTTPException
-    except HotelNotFoundHTTPException:
+    except HotelNotFoundException:
         raise HotelNotFoundHTTPException
-    except FacilitiesInvalidHTTPException:
+    except FacilitiesInvalidException:
         raise FacilitiesInvalidHTTPException
     return BaseResponseSchema()
