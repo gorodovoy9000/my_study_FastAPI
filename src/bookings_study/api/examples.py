@@ -63,3 +63,10 @@ rooms_examples = {
         "quantity": 4,
     })
 }
+
+# facilities examples
+facilities_examples = {
+    "wi-fi": Example(summary="Wi-Fi", value={"title": "wi-fi"}),
+    "tv": Example(summary="TV", value={"title": "tv"}),
+    "minibar": Example(summary="Minibar", value={"title": "minibar"}),
+}

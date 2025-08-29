@@ -1,10 +1,12 @@
-from pydantic import BaseModel
+from typing import Annotated
 
-from bookings_study.schemas.base import BasePatchSchema
+from pydantic import BaseModel, Field
+
+from bookings_study.schemas.base import BasePatchSchema, BaseResponseSchema
 
 
 class FacilitiesBaseSchema(BaseModel):
-    title: str
+    title: Annotated[str, Field(min_length=1)]
 
 
 class FacilitiesWriteSchema(FacilitiesBaseSchema):
@@ -12,8 +14,11 @@ class FacilitiesWriteSchema(FacilitiesBaseSchema):
 
 
 class FacilitiesPatchSchema(BasePatchSchema):
-    title: str = None
+    title: Annotated[str, Field(min_length=1)] = None
 
 
 class FacilitiesSchema(FacilitiesBaseSchema):
     id: int
+
+class FacilitiesResponseSchema(BaseResponseSchema):
+    data: list[FacilitiesSchema]

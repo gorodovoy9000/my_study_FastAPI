@@ -1,7 +1,8 @@
 async def test_get_facilities(ac):
     response = await ac.get("/api/facilities")
     assert response.is_success
-    assert isinstance(response.json(), list)
+    data = response.json()["data"]
+    assert isinstance(data, list)
 
 
 async def test_facility_crud(ac):
@@ -11,7 +12,7 @@ async def test_facility_crud(ac):
     assert response.is_success
     response_data = response.json()
     assert isinstance(response_data, dict)
-    created_data = response_data["data"]
+    created_data = response_data["data"][0]
     assert created_data["title"] == post_data["title"]
 
     # get facility
