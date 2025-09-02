@@ -23,7 +23,7 @@ class FilenameInvalidHTTPException(AppBaseHTTPException):
 class MediaFilenameInvalidHTTPException(AppBaseHTTPException):
     status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
     detail = ("Invalid media filename. "
-              "Only allowed lower latin letters(a-z), digits, underscore(_) and extension after dot(.) "
+              "Only allowed lower latin letters(a-z), digits, underscore(_) and image extension after dot(.) "
               "Examples: image1.png, some_image.jpg etc")
 
 # business logic exceptions

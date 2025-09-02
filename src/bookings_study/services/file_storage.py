@@ -34,8 +34,9 @@ class MediaFileStorageService(FileStorageService):
     manager = LocalFileManager(settings.LOCAL_MEDIA_ROOT)
 
     def validate_filename(self, filename: str) -> None:
-        # valid examples - name.ext, name1.ext, some_name.ext1
-        pattern = re.compile(r"[a-z0-9_]+\.[a-z0-9]+")
+        # valid examples - name.jpg, name1.png, some_name.webp
+        allowed_extensions = "|".join(("jpg", "jpeg", "png", "gif", "svg", "webp", "apng", "avif"))
+        pattern = re.compile(rf"[a-z0-9_]+\.(?:{allowed_extensions})")
         match = re.fullmatch(pattern, filename)
         if not match:
             raise MediaFilenameInvalidException
