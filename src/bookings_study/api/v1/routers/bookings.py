@@ -37,7 +37,9 @@ async def get_my_bookings(db: DBDep, user_id: UserIdDep) -> BookingsResponseSche
 
 @router.post("")
 async def create_booking(
-    db: DBDep, user_id: UserIdDep, request_data: BookingsRequestSchema = Body(openapi_examples=booking_examples)
+    db: DBDep,
+    user_id: UserIdDep,
+    request_data: BookingsRequestSchema = Body(openapi_examples=booking_examples),
 ) -> BookingsResponseSchema:
     try:
         data = await BookingsService(db).add_booking(

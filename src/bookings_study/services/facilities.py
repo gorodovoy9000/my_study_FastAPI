@@ -10,7 +10,7 @@ from bookings_study.schemas.facilities import (
 from bookings_study.services.base import BaseService
 from bookings_study.services.exceptions import (
     FacilityAlreadyExistsException,
-    FacilityNotFoundException
+    FacilityNotFoundException,
 )
 
 

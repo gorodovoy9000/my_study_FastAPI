@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 
 from bookings_study.schemas.base import BasePatchSchema, BaseResponseSchema
 
+
 class HotelsBaseSchema(BaseModel):
     title: Annotated[str, Field(min_length=1)]
     location: Annotated[str, Field(min_length=1)]

@@ -83,7 +83,9 @@ class RoomService(BaseService):
         # edit room partially
         if room_data:
             update_data = RoomsPatchSchema(**room_data)
-            await self._edit_room(room_id=room_id, data=update_data, partial_update=True)
+            await self._edit_room(
+                room_id=room_id, data=update_data, partial_update=True
+            )
         # change room facilities
         if request_data.facilities_ids is not None:
             await self._edit_room_facilities(

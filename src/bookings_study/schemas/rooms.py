@@ -41,5 +41,6 @@ class RoomsPatchSchema(BasePatchSchema):
 class RoomsSchema(RoomsBaseSchema):
     id: int
 
+
 class RoomsResponseSchema(BaseResponseSchema):
     data: list[RoomsSchema]

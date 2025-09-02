@@ -11,7 +11,11 @@ from bookings_study.services.exceptions import (
     RoomNotFoundException,
     RoomHasBookingsException,
 )
-from bookings_study.api.v1.examples import start_date_examples, end_date_examples, rooms_examples
+from bookings_study.api.v1.examples import (
+    start_date_examples,
+    end_date_examples,
+    rooms_examples,
+)
 from bookings_study.api.v1.exceptions import (
     DateFromBiggerOrEqualDateToHTTPException,
     FacilitiesInvalidHTTPException,
@@ -50,7 +54,10 @@ async def get_rooms(
 
 
 @router.post("")
-async def create_room(db: DBDep, request_data: RoomsRequestPostSchema = Body(openapi_examples=rooms_examples)) -> RoomsResponseSchema:
+async def create_room(
+    db: DBDep,
+    request_data: RoomsRequestPostSchema = Body(openapi_examples=rooms_examples),
+) -> RoomsResponseSchema:
     try:
         data = await RoomService(db).add_room(request_data=request_data)
     except RoomAlreadyExistsException:
@@ -85,7 +92,9 @@ async def delete_room(db: DBDep, room_id: int) -> BaseResponseSchema:
 
 @router.put("/{room_id}")
 async def update_room(
-    db: DBDep, room_id: int, request_data: RoomsRequestPostSchema = Body(openapi_examples=rooms_examples)
+    db: DBDep,
+    room_id: int,
+    request_data: RoomsRequestPostSchema = Body(openapi_examples=rooms_examples),
 ) -> BaseResponseSchema:
     try:
         await RoomService(db).edit_room(room_id=room_id, request_data=request_data)
@@ -102,7 +111,9 @@ async def update_room(
 
 @router.patch("/{room_id}")
 async def partial_update_room(
-    db: DBDep, room_id: int, request_data: RoomsRequestPatchSchema = Body(openapi_examples=rooms_examples)
+    db: DBDep,
+    room_id: int,
+    request_data: RoomsRequestPatchSchema = Body(openapi_examples=rooms_examples),
 ) -> BaseResponseSchema:
     try:
         await RoomService(db).edit_room_partially(

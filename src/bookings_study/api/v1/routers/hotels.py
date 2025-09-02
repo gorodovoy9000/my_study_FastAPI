@@ -41,7 +41,7 @@ async def get_hotels(
     ] = None,
     location: Annotated[
         str | None, Query(description="Filter by substring hotel location")
-    ] = None
+    ] = None,
 ) -> HotelsResponseSchema:
     try:
         data = await HotelService(db).get_hotels_filtered(
@@ -67,7 +67,9 @@ async def get_hotel(db: DBDep, hotel_id: int) -> HotelsResponseSchema:
 
 
 @router.post("")
-async def create_hotel(db: DBDep, schema_create: HotelsWriteSchema = Body(openapi_examples=hotels_examples)) -> HotelsResponseSchema:
+async def create_hotel(
+    db: DBDep, schema_create: HotelsWriteSchema = Body(openapi_examples=hotels_examples)
+) -> HotelsResponseSchema:
     try:
         data = await HotelService(db).add_hotel(schema_create)
     except HotelAlreadyExistsException:
@@ -90,7 +92,11 @@ async def delete_hotel(db: DBDep, hotel_id: int) -> BaseResponseSchema:
 
 
 @router.put("/{hotel_id}")
-async def update_hotel(db: DBDep, hotel_id: int, schema_update: HotelsWriteSchema = Body(openapi_examples=hotels_examples)) -> BaseResponseSchema:
+async def update_hotel(
+    db: DBDep,
+    hotel_id: int,
+    schema_update: HotelsWriteSchema = Body(openapi_examples=hotels_examples),
+) -> BaseResponseSchema:
     try:
         await HotelService(db).edit_hotel(hotel_id=hotel_id, data=schema_update)
     except HotelNotFoundException:
@@ -101,7 +107,11 @@ async def update_hotel(db: DBDep, hotel_id: int, schema_update: HotelsWriteSchem
 
 
 @router.patch("/{hotel_id}")
-async def patch_hotel(db: DBDep, hotel_id: int, schema_patch: HotelsPatchSchema = Body(openapi_examples=hotels_examples)) -> BaseResponseSchema:
+async def patch_hotel(
+    db: DBDep,
+    hotel_id: int,
+    schema_patch: HotelsPatchSchema = Body(openapi_examples=hotels_examples),
+) -> BaseResponseSchema:
     try:
         await HotelService(db).edit_hotel_partially(
             hotel_id=hotel_id, data=schema_patch

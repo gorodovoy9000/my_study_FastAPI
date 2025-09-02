@@ -13,4 +13,5 @@ class BasePatchSchema(BaseModel):
 
 class BaseResponseSchema(BaseModel):
     """Base response payload structure"""
+
     status: str = "Ok"

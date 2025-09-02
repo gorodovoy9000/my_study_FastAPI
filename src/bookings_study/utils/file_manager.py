@@ -10,7 +10,7 @@ class LocalFileManager:
 
     def get_abs_filepath(self, rel_filepath: str, not_found_err=True) -> str:
         # build absolute filepath
-        abs_filepath =  pathlib.Path(self.storage_root, rel_filepath)
+        abs_filepath = pathlib.Path(self.storage_root, rel_filepath)
         # raise exception if not found
         if not_found_err and not abs_filepath.is_file():
             raise FileNotFoundException

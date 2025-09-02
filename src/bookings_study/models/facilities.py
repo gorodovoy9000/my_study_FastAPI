@@ -19,9 +19,4 @@ class FacilitiesOrm(Base):
         secondary="facilities_rooms_at", back_populates="facilities"
     )
 
-    __table_args__ = (
-        UniqueConstraint(
-            "title",
-            name="uc_facilities-title"
-        ),
-    )
+    __table_args__ = (UniqueConstraint("title", name="uc_facilities-title"),)

@@ -15,16 +15,21 @@ class AppBaseHTTPException(HTTPException):
 # files errors
 class FilenameInvalidHTTPException(AppBaseHTTPException):
     status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
-    detail = ("Invalid filename. "
-              "Only allowed lower latin letters(a-z), digits, underscore(_) and optional extension after dot(.) "
-              "Examples: file1.txt, some_image.jpg some_file etc")
+    detail = (
+        "Invalid filename. "
+        "Only allowed lower latin letters(a-z), digits, underscore(_) and optional extension after dot(.) "
+        "Examples: file1.txt, some_image.jpg some_file etc"
+    )
 
 
 class MediaFilenameInvalidHTTPException(AppBaseHTTPException):
     status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
-    detail = ("Invalid media filename. "
-              "Only allowed lower latin letters(a-z), digits, underscore(_) and image extension after dot(.) "
-              "Examples: image1.png, some_image.jpg etc")
+    detail = (
+        "Invalid media filename. "
+        "Only allowed lower latin letters(a-z), digits, underscore(_) and image extension after dot(.) "
+        "Examples: image1.png, some_image.jpg etc"
+    )
+
 
 # business logic exceptions
 class BookingIsTooLongHTTPException(AppBaseHTTPException):

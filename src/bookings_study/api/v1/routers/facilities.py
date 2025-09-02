@@ -5,12 +5,12 @@ from bookings_study.api.v1.dependencies import DBDep, PaginationDep
 from bookings_study.api.v1.examples import facilities_examples
 from bookings_study.api.v1.exceptions import (
     FacilityAlreadyExistsHTTPException,
-    FacilityNotFoundHTTPException
+    FacilityNotFoundHTTPException,
 )
 from bookings_study.services.facilities import FacilityService
 from bookings_study.services.exceptions import (
     FacilityAlreadyExistsException,
-    FacilityNotFoundException
+    FacilityNotFoundException,
 )
 from bookings_study.schemas.base import BaseResponseSchema
 from bookings_study.schemas.facilities import (
@@ -44,7 +44,10 @@ async def get_facility(db: DBDep, facility_id: int) -> FacilitiesResponseSchema:
 
 
 @router.post("")
-async def create_facility(db: DBDep, data_create: FacilitiesWriteSchema = Body(openapi_examples=facilities_examples)) -> FacilitiesResponseSchema:
+async def create_facility(
+    db: DBDep,
+    data_create: FacilitiesWriteSchema = Body(openapi_examples=facilities_examples),
+) -> FacilitiesResponseSchema:
     try:
         data = await FacilityService(db).add_facility(data_create)
     except FacilityAlreadyExistsException:
@@ -63,7 +66,9 @@ async def delete_facility(db: DBDep, facility_id: int) -> BaseResponseSchema:
 
 @router.put("/{facility_id}")
 async def update_facility(
-    db: DBDep, facility_id: int, data_update: FacilitiesWriteSchema = Body(openapi_examples=facilities_examples)
+    db: DBDep,
+    facility_id: int,
+    data_update: FacilitiesWriteSchema = Body(openapi_examples=facilities_examples),
 ) -> BaseResponseSchema:
     try:
         await FacilityService(db).edit_facility(
@@ -78,7 +83,9 @@ async def update_facility(
 
 @router.patch("/{facility_id}")
 async def partial_update_facility(
-    db: DBDep, facility_id: int, data_update: FacilitiesPatchSchema = Body(openapi_examples=facilities_examples)
+    db: DBDep,
+    facility_id: int,
+    data_update: FacilitiesPatchSchema = Body(openapi_examples=facilities_examples),
 ) -> BaseResponseSchema:
     try:
         await FacilityService(db).edit_facility_partially(

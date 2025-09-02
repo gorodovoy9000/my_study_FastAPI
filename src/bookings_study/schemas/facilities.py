@@ -20,5 +20,6 @@ class FacilitiesPatchSchema(BasePatchSchema):
 class FacilitiesSchema(FacilitiesBaseSchema):
     id: int
 
+
 class FacilitiesResponseSchema(BaseResponseSchema):
     data: list[FacilitiesSchema]

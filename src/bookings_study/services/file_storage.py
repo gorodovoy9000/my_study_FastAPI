@@ -35,7 +35,9 @@ class MediaFileStorageService(FileStorageService):
 
     def validate_filename(self, filename: str) -> None:
         # valid examples - name.jpg, name1.png, some_name.webp
-        allowed_extensions = "|".join(("jpg", "jpeg", "png", "gif", "svg", "webp", "apng", "avif"))
+        allowed_extensions = "|".join(
+            ("jpg", "jpeg", "png", "gif", "svg", "webp", "apng", "avif")
+        )
         pattern = re.compile(rf"[a-z0-9_]+\.(?:{allowed_extensions})")
         match = re.fullmatch(pattern, filename)
         if not match:

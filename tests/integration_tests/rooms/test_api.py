@@ -49,16 +49,12 @@ async def test_room_crud(ac):
         "quantity": 5,
         "facilities_ids": [1, 2],
     }
-    response = await ac.patch(
-        f"/api/v1/rooms/{created_data['id']}", json=patch_data
-    )
+    response = await ac.patch(f"/api/v1/rooms/{created_data['id']}", json=patch_data)
     assert response.is_success
 
     # patch only facilities
     patch_data = {"facilities_ids": [1, 3]}
-    response = await ac.patch(
-        f"/api/v1/rooms/{created_data['id']}", json=patch_data
-    )
+    response = await ac.patch(f"/api/v1/rooms/{created_data['id']}", json=patch_data)
     assert response.is_success
 
     # delete room

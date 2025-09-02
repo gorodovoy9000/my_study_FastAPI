@@ -12,8 +12,5 @@ class HotelsOrm(Base):
     location: Mapped[str]
 
     __table_args__ = (
-        UniqueConstraint(
-            "title", "location",
-            name="uc_hotels-title__location"
-        ),
+        UniqueConstraint("title", "location", name="uc_hotels-title__location"),
     )

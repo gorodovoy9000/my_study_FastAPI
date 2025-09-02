@@ -26,7 +26,9 @@ async def test_facility_crud(ac):
 
     # patch facility
     patch_data = {"title": "wf-ii"}
-    response = await ac.patch(f"/api/v1/facilities/{created_data['id']}", json=patch_data)
+    response = await ac.patch(
+        f"/api/v1/facilities/{created_data['id']}", json=patch_data
+    )
     assert response.is_success
 
     # delete facility
