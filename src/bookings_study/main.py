@@ -10,6 +10,7 @@ from bookings_study.config import settings
 from bookings_study.api.v1.routers import main_router
 
 
+# define logs mode
 if settings.MODE == "PROD":
     logging.basicConfig(level=logging.INFO)
 else:
