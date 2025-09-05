@@ -1,3 +1,7 @@
+variables:
+  IMAGE_DEV_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG-dev
+  IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+
 workflow:
   rules:
     - if: '$CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/'
@@ -11,20 +15,17 @@ stages:
 build-job:
   stage: build
   script:
-    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG .
+    - docker build -f ./dev.Dockerfile -t IMAGE_DEV_TAG .
 
 format-job:
   stage: format_lint
-  image:
-    name: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
-    pull_policy: never
   script:
-    - ruff format --check
+    - docker run --rm -v ./:./app IMAGE_DEV_TAG ruff format --check
 
 lint-job:
   stage: format_lint
   image:
-    name: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+    name: IMAGE_DEV_TAG
     pull_policy: never
   script:
     - ruff check
@@ -32,7 +33,7 @@ lint-job:
 test-job:
     stage: test
     image:
-      name: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+      name: IMAGE_DEV_TAG
       pull_policy: never
     services:
       - name: postgres:17
