@@ -15,19 +15,25 @@ build-job:
 
 format-job:
   stage: format_lint
-  image: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+  image:
+    name: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+    pull_policy: never
   script:
     - ruff format --check
 
 lint-job:
   stage: format_lint
-  image: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+  image:
+    name: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+    pull_policy: never
   script:
     - ruff check
 
 test-job:
     stage: test
-    image: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+    image:
+      name: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+      pull_policy: never
     services:
       - name: postgres:17
         variables:
