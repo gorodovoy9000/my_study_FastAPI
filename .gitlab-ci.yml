@@ -1,5 +1,5 @@
 variables:
-  IMAGE_DEV_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG-dev
+  IMAGE_CI_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG-ci
   IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
 
 workflow:
@@ -15,22 +15,28 @@ stages:
 build-job:
   stage: build
   script:
-    - docker build -f ./dev.Dockerfile -t $IMAGE_DEV_TAG .
+    - docker build -f ./ci.Dockerfile -t $IMAGE_CI_TAG .
 
 format-job:
   stage: format_lint
+  image:
+    name: $IMAGE_CI_TAG
+    pull_policy: never
   script:
-    - docker run --rm -v ./:/app $IMAGE_DEV_TAG ruff format --check
+    - ruff format --check
 
 lint-job:
   stage: format_lint
+  image:
+    name: $IMAGE_CI_TAG
+    pull_policy: never
   script:
-    - docker run --rm -v ./src:/app/src $IMAGE_DEV_TAG ruff check
+    - ruff check
 
 test-job:
     stage: test
     image:
-      name: $IMAGE_DEV_TAG
+      name: $IMAGE_CI_TAG
       pull_policy: never
     services:
       - name: postgres:17
