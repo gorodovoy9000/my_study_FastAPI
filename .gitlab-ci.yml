@@ -25,7 +25,7 @@ format-job:
 lint-job:
   stage: format_lint
   script:
-    - docker run --rm -v ./:/app $IMAGE_DEV_TAG ruff check
+    - docker run --rm -v ./src:/app/src $IMAGE_DEV_TAG ruff check
 
 test-job:
     stage: test
