@@ -15,17 +15,17 @@ stages:
 build-job:
   stage: build
   script:
-    - docker build -f ./dev.Dockerfile -t IMAGE_DEV_TAG .
+    - docker build -f ./dev.Dockerfile -t $IMAGE_DEV_TAG .
 
 format-job:
   stage: format_lint
   script:
-    - docker run --rm -v ./:./app IMAGE_DEV_TAG ruff format --check
+    - docker run --rm -v ./:./app $IMAGE_DEV_TAG ruff format --check
 
 lint-job:
   stage: format_lint
   image:
-    name: IMAGE_DEV_TAG
+    name: $IMAGE_DEV_TAG
     pull_policy: never
   script:
     - ruff check
@@ -33,7 +33,7 @@ lint-job:
 test-job:
     stage: test
     image:
-      name: IMAGE_DEV_TAG
+      name: $IMAGE_DEV_TAG
       pull_policy: never
     services:
       - name: postgres:17
