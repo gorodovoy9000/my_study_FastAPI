@@ -20,15 +20,12 @@ build-job:
 format-job:
   stage: format_lint
   script:
-    - docker run --rm -v ./:./app $IMAGE_DEV_TAG ruff format --check
+    - docker run --rm -v ./:/app $IMAGE_DEV_TAG ruff format --check
 
 lint-job:
   stage: format_lint
-  image:
-    name: $IMAGE_DEV_TAG
-    pull_policy: never
   script:
-    - ruff check
+    - docker run --rm -v ./:/app $IMAGE_DEV_TAG ruff check
 
 test-job:
     stage: test
