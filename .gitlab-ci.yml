@@ -40,6 +40,7 @@ test-job:
       pull_policy: never
     services:
       - name: postgres:17
+        alias: db
         variables:
           POSTGRES_DB: test
           POSTGRES_USER: postgres
