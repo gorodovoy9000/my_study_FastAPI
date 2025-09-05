@@ -10,7 +10,7 @@ stages:
   - build
   - format_lint
   - test
-  # - deploy
+  - push
 
 build-job:
   stage: build
@@ -48,9 +48,8 @@ test-job:
     script:
       - pytest
 
-#deploy-job:
-#  stage: deploy
-#  environment: production
-#  script:
-#    - echo "Deploying application..."
-#    - echo "Application successfully deployed."
+push-job:
+  stage: push
+  script:
+    - docker build -t $IMAGE_TAG .
+    - docker push $IMAGE_TAG
