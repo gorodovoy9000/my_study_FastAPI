@@ -51,5 +51,6 @@ test-job:
 push-job:
   stage: push
   script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
     - docker build -t $IMAGE_TAG .
     - docker push $IMAGE_TAG
